@@ -3,12 +3,17 @@ package gui;
 import java.util.Observable;
 import java.util.Observer;
 
+import model.StrategoGame;
+
 public class GameObserver implements Observer {
 
+	private StrategoGame game;
+	
 	@Override
-	public void update(Observable arg0, Object arg1) {
-		// TODO Auto-generated method stub
-
+	public void update(Observable game, Object arg1) {
+		this.game = (StrategoGame) game;
+		
+		
 	}
 
 }

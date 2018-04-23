@@ -20,11 +20,16 @@ public class Server extends Application {
 	private final static int serverPort = 9998;
 	private static ServerSocket serverSocket;
 	private static Socket[] connectedClients;
+	private static ObjectOutputStream[] clientOutputStreams;
+	private static ObjectInputStream[] clientInputStreams;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		serverSocket = new ServerSocket(serverPort);
+		
 		connectedClients = new Socket[4];
+		clientOutputStreams = new ObjectOutputStream[4];
+		clientInputStreams = new ObjectInputStream[4];
 
 		launch(args);
 	}
@@ -66,13 +71,13 @@ public class Server extends Application {
 		public void run() {
 			for (int i = 0; i < 4; i++) {
 				try {
-					System.out.println("Waiting for client " + (i + 1));
 					connectedClients[i] = serverSocket.accept();
+					clientOutputStreams[i] = new ObjectOutputStream(connectedClients[i].getOutputStream());
+					clientInputStreams[i] = new ObjectInputStream(connectedClients[i].getInputStream());
 					Platform.runLater(() -> {
 						for (int j = 0; j < 4; j++) {
 							if (connectedClients[j] != null) {
 								connectionStatuses[j].setText("Client " + (j + 1) + " connected.");
-								break;
 							}
 						}
 					});
@@ -82,6 +87,13 @@ public class Server extends Application {
 
 			}
 
+			for (int i = 0; i < 4; i++) {
+				try {
+					clientOutputStreams[i].writeObject(new String("start"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 	}
