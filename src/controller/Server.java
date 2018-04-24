@@ -81,20 +81,18 @@ public class Server extends Application {
 							}
 						}
 					});
-				} catch (IOException e) { // TODO Auto-generated catch block
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
 			}
-
+			
 			for (int i = 0; i < 4; i++) {
 				try {
-					clientOutputStreams[i].writeObject(new String("start"));
+					clientOutputStreams[i].writeObject(new InitializePacket(i));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-
 	}
 }

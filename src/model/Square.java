@@ -5,7 +5,8 @@ public class Square {
 	private Piece occupied;
 	private boolean movable;
 	
-	
+	public Square() {
+	}
 	
 	public boolean isEmpty() {
 		return (occupied == null);

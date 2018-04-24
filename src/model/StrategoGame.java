@@ -9,6 +9,7 @@ public class StrategoGame extends Observable {
 
 	public StrategoGame() {
 		initializeBoard();
+		setChangedAndNotifyObservers();
 	}
 
 	/**
@@ -17,6 +18,12 @@ public class StrategoGame extends Observable {
 	private void initializeBoard() {
 
 		board = new Square[12][12];
+		
+		for (int r = 0; r < 12; r++) {
+			for (int c = 0; c < 12; c++) {
+				board[r][c] = new Square();
+			}
+		}
 
 		/* Make certain Squares of the board unmovable */
 
@@ -54,5 +61,14 @@ public class StrategoGame extends Observable {
 				board[r][c].setMovable(false);
 			}
 		}
+	}
+	
+	public Square[][] getBoard() {
+		return board;
+	}
+	
+	private void setChangedAndNotifyObservers() {
+		setChanged();
+		notifyObservers();
 	}
 }
