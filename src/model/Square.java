@@ -6,10 +6,20 @@ public class Square {
 	private boolean movable;
 	
 	public Square() {
+		occupied = null;
+		movable = true;
 	}
 	
-	public boolean isEmpty() {
-		return (occupied == null);
+	public boolean isOccupied() {
+		return (occupied != null);
+	}
+	
+	public void setOccupied(Piece p) {
+		occupied = p;
+	}
+	
+	public Piece getOccupied() {
+		return occupied;
 	}
 	
 	public boolean isMoveable() {

@@ -61,13 +61,15 @@ public class StrategoGame extends Observable {
 				board[r][c].setMovable(false);
 			}
 		}
+		
+		board[5][0].setOccupied(new Piece(Rank.EIGHT));
 	}
 	
 	public Square[][] getBoard() {
 		return board;
 	}
 	
-	private void setChangedAndNotifyObservers() {
+	public void setChangedAndNotifyObservers() {
 		setChanged();
 		notifyObservers();
 	}
