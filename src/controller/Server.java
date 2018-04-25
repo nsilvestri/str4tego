@@ -1,4 +1,4 @@
-package model;
+package controller;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,6 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.InitializePacket;
+import model.Team;
 
 public class Server extends Application {
 

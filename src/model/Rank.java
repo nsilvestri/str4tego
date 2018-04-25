@@ -23,6 +23,8 @@ public enum Rank {
 				return "2";
 			case BOMB :
 				return "B";
+			case UNKNOWN :
+				return "";
 			default :
 				return "?";
 		}

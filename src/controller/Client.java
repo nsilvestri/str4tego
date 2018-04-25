@@ -42,10 +42,10 @@ public class Client extends Application {
 		gameObserver = new GameObserver(game);
 		game.addObserver(gameObserver);
 		game.setChangedAndNotifyObservers();
-		window.setCenter((Node) gameObserver);
+		window.setLeft((Node) gameObserver);
 
 		primaryStage.setTitle("Str4tego");
-		Scene scene = new Scene(window, 600, 600);
+		Scene scene = new Scene(window, 700, 500);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 

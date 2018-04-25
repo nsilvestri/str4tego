@@ -15,17 +15,18 @@ import javafx.application.Platform;
 public class StrategoGame extends Observable {
 
 	private Square[][] board;
+	private Team team;
 
 	private final static String serverAddress = "localhost";
 	private final static int serverPort = 9998;
 	private static Socket clientSocket;
 	private static ObjectOutputStream outToServer;
 	private static ObjectInputStream inFromServer;
-
 	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
 
 	public StrategoGame() {
 		initializeBoard();
+		team = Team.NONE;
 		initializeServerConnection();
 		setChangedAndNotifyObservers();
 	}
@@ -133,6 +134,7 @@ public class StrategoGame extends Observable {
 			@Override
 			public void handle(long now) {
 				while (!packetBuffer.isEmpty()) {
+					System.out.println("found a packet");
 					parsePacket(packetBuffer.remove(0));
 				}
 			}
@@ -142,6 +144,11 @@ public class StrategoGame extends Observable {
 
 	public Square[][] getBoard() {
 		return board;
+	}
+	
+	public void setPiece(Piece p, int r, int c) {
+		board[r][c].setOccupied(p);
+		setChangedAndNotifyObservers();
 	}
 
 	public void setChangedAndNotifyObservers() {
@@ -156,8 +163,42 @@ public class StrategoGame extends Observable {
 	private void parsePacket(Packet p) {
 		if (p.getPacketType() == PacketType.INITIALIZE_GAME) {
 			InitializePacket ip = (InitializePacket) p;
-			System.out.println("I am team: " + ip.getTeam());
+
+			team = ip.getTeam();
+
+			// Initialize red pieces
+			for (int r = 9; r < 12; r++) {
+				for (int c = 3; c < 9; c++) {
+					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.RED));
+				}
+			}
+
+			// Initialize GREEN pieces
+			for (int r = 3; r < 9; r++) {
+				for (int c = 0; c < 3; c++) {
+					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.GREEN));
+				}
+			}
+
+			// Initialize blue pieces
+			for (int r = 0; r < 3; r++) {
+				for (int c = 3; c < 9; c++) {
+					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.BLUE));
+				}
+			}
+
+			// Initialize yellow pieces
+			for (int r = 3; r < 9; r++) {
+				for (int c = 9; c < 12; c++) {
+					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.YELLOW));
+				}
+			}
 			
+			setChangedAndNotifyObservers();
 		}
+	}
+	
+	public Team getTeam() {
+		return team;
 	}
 }

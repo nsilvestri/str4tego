@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 public enum Team {
-	RED, BLUE, GREEN, YELLOW;
+	RED, BLUE, GREEN, YELLOW, NONE;
 
 	public Paint getColor() {
 		switch (this) {
@@ -16,8 +16,10 @@ public enum Team {
 				return Color.GREEN;
 			case YELLOW :
 				return Color.YELLOW;
+			case NONE:
+				return Color.BLACK;
 			default :
-				return null;
+				return Color.PURPLE;
 		}
 	}
 }
