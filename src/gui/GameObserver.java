@@ -1,5 +1,6 @@
 package gui;
 
+import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,10 +36,22 @@ public class GameObserver extends BorderPane implements Observer {
 	private GridPane pieceButtons;
 	private Label connectionStatus;
 
+	private Button eightButton;
+	private Button sevenButton;
+	private Button sixButton;
+	private Button fiveButton;
+	private Button fourButton;
+	private Button threeButton;
+	private Button twoButton;
+	private Button bombButton;
+	private Button flagButton;
+
 	private Piece placingPiece;
 
-	private static final int[] MAX_PIECES = new int[] { 1, 3, 3, 2, 3, 2, 2, 1, 1 };
-	private int[] placedPieces;
+	// TODO: turn these into maps
+	private static HashMap<Rank, Integer> maxPieces;
+	private HashMap<Rank, Integer> canPlacePieces;
+	private HashMap<Rank, Button> rankButtonMap;
 
 	public GameObserver(StrategoGame game) {
 		this.game = game;
@@ -55,25 +68,51 @@ public class GameObserver extends BorderPane implements Observer {
 		initializePieceButtons();
 		rightMenu.getChildren().add(pieceButtons);
 
-		placedPieces = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		initializeMaps();
 
 		connectionStatus = new Label("Connecting to server...");
 		rightMenu.getChildren().add(connectionStatus);
 		this.setRight(rightMenu);
 	}
 
+	private void initializeMaps() {
+		maxPieces = new HashMap<Rank, Integer>();
+		maxPieces.put(Rank.EIGHT, 1);
+		maxPieces.put(Rank.SEVEN, 1);
+		maxPieces.put(Rank.SIX, 2);
+		maxPieces.put(Rank.FIVE, 2);
+		maxPieces.put(Rank.FOUR, 3);
+		maxPieces.put(Rank.THREE, 2);
+		maxPieces.put(Rank.TWO, 3);
+		maxPieces.put(Rank.BOMB, 3);
+		maxPieces.put(Rank.FLAG, 1);
+
+		canPlacePieces = new HashMap<Rank, Integer>(maxPieces);
+
+		rankButtonMap = new HashMap<Rank, Button>();
+		rankButtonMap.put(Rank.EIGHT, eightButton);
+		rankButtonMap.put(Rank.SEVEN, sevenButton);
+		rankButtonMap.put(Rank.SIX, sixButton);
+		rankButtonMap.put(Rank.FIVE, fiveButton);
+		rankButtonMap.put(Rank.FOUR, fourButton);
+		rankButtonMap.put(Rank.THREE, threeButton);
+		rankButtonMap.put(Rank.TWO, twoButton);
+		rankButtonMap.put(Rank.BOMB, bombButton);
+		rankButtonMap.put(Rank.FLAG, flagButton);
+	}
+
 	private void initializePieceButtons() {
 		pieceButtons = new GridPane();
 
-		Button eightButton = new Button("8");
-		Button sevenButton = new Button("7");
-		Button sixButton = new Button("6");
-		Button fiveButton = new Button("5");
-		Button fourButton = new Button("4");
-		Button threeButton = new Button("3");
-		Button twoButton = new Button("2");
-		Button bombButton = new Button("B");
-		Button flagButton = new Button("F");
+		eightButton = new Button("8");
+		sevenButton = new Button("7");
+		sixButton = new Button("6");
+		fiveButton = new Button("5");
+		fourButton = new Button("4");
+		threeButton = new Button("3");
+		twoButton = new Button("2");
+		bombButton = new Button("B");
+		flagButton = new Button("F");
 
 		PieceButtonHandler pbh = new PieceButtonHandler();
 		eightButton.setOnAction(pbh);
@@ -156,12 +195,15 @@ public class GameObserver extends BorderPane implements Observer {
 			int r = (int) (mouse.getY() / sqSize);
 			int c = (int) (mouse.getX() / sqSize);
 
-			System.out.println(placingPiece);
 			game.setPiece(placingPiece, r, c);
 
-			placingPiece = null;
+			canPlacePieces.put(placingPiece.getRank(), canPlacePieces.get(placingPiece.getRank()) - 1);
 
-			System.out.printf("Mouse click at [%d, %d]\n", r, c);
+			if (canPlacePieces.get(placingPiece.getRank()) == 0) {
+				rankButtonMap.get(placingPiece.getRank()).setDisable(true);
+			}
+
+			placingPiece = null;
 		}
 	}
 
