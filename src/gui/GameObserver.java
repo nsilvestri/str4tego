@@ -34,9 +34,11 @@ public class GameObserver extends BorderPane implements Observer {
 	private Label teamColorLabel;
 	private GridPane pieceButtons;
 	private Label connectionStatus;
-	
+
 	private Piece placingPiece;
-	
+
+	private static final int[] MAX_PIECES = new int[] { 1, 3, 3, 2, 3, 2, 2, 1, 1 };
+	private int[] placedPieces;
 
 	public GameObserver(StrategoGame game) {
 		this.game = game;
@@ -45,23 +47,24 @@ public class GameObserver extends BorderPane implements Observer {
 		this.setCenter(canvas);
 		canvas.setOnMouseClicked(new CanvasClickHandler());
 		gc = canvas.getGraphicsContext2D();
-		
+
 		rightMenu = new VBox();
 		teamColorLabel = new Label("Your Team: " + game.getTeam().toString());
 		rightMenu.getChildren().add(teamColorLabel);
-		
+
 		initializePieceButtons();
-		
 		rightMenu.getChildren().add(pieceButtons);
+
+		placedPieces = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 		connectionStatus = new Label("Connecting to server...");
 		rightMenu.getChildren().add(connectionStatus);
 		this.setRight(rightMenu);
 	}
-	
+
 	private void initializePieceButtons() {
 		pieceButtons = new GridPane();
-		
+
 		Button eightButton = new Button("8");
 		Button sevenButton = new Button("7");
 		Button sixButton = new Button("6");
@@ -71,7 +74,7 @@ public class GameObserver extends BorderPane implements Observer {
 		Button twoButton = new Button("2");
 		Button bombButton = new Button("B");
 		Button flagButton = new Button("F");
-		
+
 		PieceButtonHandler pbh = new PieceButtonHandler();
 		eightButton.setOnAction(pbh);
 		sevenButton.setOnAction(pbh);
@@ -82,7 +85,7 @@ public class GameObserver extends BorderPane implements Observer {
 		twoButton.setOnAction(pbh);
 		bombButton.setOnAction(pbh);
 		flagButton.setOnAction(pbh);
-		
+
 		pieceButtons.add(eightButton, 0, 0);
 		pieceButtons.add(sevenButton, 1, 0);
 		pieceButtons.add(sixButton, 0, 1);
@@ -107,7 +110,7 @@ public class GameObserver extends BorderPane implements Observer {
 				connectionStatus.setText("Connected to server.");
 			});
 		}
-		
+
 		teamColorLabel.setText("Team: " + game.getTeam().toString());
 
 		Square[][] board = game.getBoard();
@@ -145,31 +148,48 @@ public class GameObserver extends BorderPane implements Observer {
 			if (mouse.getEventType() != MouseEvent.MOUSE_CLICKED) {
 				return;
 			}
-			
+
 			if (placingPiece == null) {
 				return;
 			}
 
 			int r = (int) (mouse.getY() / sqSize);
 			int c = (int) (mouse.getX() / sqSize);
-			
+
 			System.out.println(placingPiece);
 			game.setPiece(placingPiece, r, c);
-			
+
 			placingPiece = null;
 
 			System.out.printf("Mouse click at [%d, %d]\n", r, c);
 		}
 	}
-	
+
 	private class PieceButtonHandler implements EventHandler<ActionEvent> {
 
 		@Override
 		public void handle(ActionEvent ae) {
 			Button b = (Button) ae.getSource();
-			
-			placingPiece = new Piece(Rank.EIGHT, game.getTeam());
+
+			if (b.getText().contains("8")) {
+				placingPiece = new Piece(Rank.EIGHT, game.getTeam());
+			} else if (b.getText().contains("7")) {
+				placingPiece = new Piece(Rank.SEVEN, game.getTeam());
+			} else if (b.getText().contains("6")) {
+				placingPiece = new Piece(Rank.SIX, game.getTeam());
+			} else if (b.getText().contains("5")) {
+				placingPiece = new Piece(Rank.FIVE, game.getTeam());
+			} else if (b.getText().contains("4")) {
+				placingPiece = new Piece(Rank.FOUR, game.getTeam());
+			} else if (b.getText().contains("3")) {
+				placingPiece = new Piece(Rank.THREE, game.getTeam());
+			} else if (b.getText().contains("2")) {
+				placingPiece = new Piece(Rank.TWO, game.getTeam());
+			} else if (b.getText().contains("B")) {
+				placingPiece = new Piece(Rank.BOMB, game.getTeam());
+			} else if (b.getText().contains("F")) {
+				placingPiece = new Piece(Rank.FLAG, game.getTeam());
+			}
 		}
-		
 	}
 }
