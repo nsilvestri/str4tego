@@ -1,14 +1,33 @@
 package model;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
+import controller.Packet;
+import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 
 public class StrategoGame extends Observable {
 
 	private Square[][] board;
+	
+	private final static String serverAddress = "localhost";
+	private final static int serverPort = 9998;
+	private static Socket clientSocket;
+	private static ObjectOutputStream outToServer;
+	private static ObjectInputStream inFromServer;
+
+	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
 
 	public StrategoGame() {
 		initializeBoard();
+		initializeServerConnection();
 		setChangedAndNotifyObservers();
 	}
 
@@ -62,7 +81,65 @@ public class StrategoGame extends Observable {
 			}
 		}
 		
-		board[5][0].setOccupied(new Piece(Rank.EIGHT));
+		board[5][0].setOccupied(new Piece(Rank.FIVE));
+	}
+	
+	private void initializeServerConnection() {
+		// start a thread that continuously attempts to connect to the server
+				Thread serverConnector = new Thread(() -> {
+
+					while (clientSocket == null || !clientSocket.isConnected()) {
+						try {
+							clientSocket = new Socket();
+							clientSocket.connect(new InetSocketAddress(serverAddress, serverPort));
+						} catch (IOException ioe) {
+							// TODO: Empty Catch
+						}
+
+						// hopefully stops the server from thinking it's getting DOS'd
+						try {
+							Thread.sleep(1500);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+
+					// initialize streams
+					try {
+						outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+						inFromServer = new ObjectInputStream(clientSocket.getInputStream());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					// start a thread that reads packets from the socket and puts them
+					// in the buffer
+					Thread packetReader = new Thread(() -> {
+						try {
+							while (true) {
+								Packet p = (Packet) inFromServer.readObject();
+								packetBuffer.add(p);
+							}
+						} catch (ClassNotFoundException | IOException e) {
+							e.printStackTrace();
+						}
+					});
+					packetReader.start();
+					
+					setChangedAndNotifyObservers();
+				});
+				serverConnector.start();
+
+				// start a timer that will parse packets 60 times per second
+				AnimationTimer at = new AnimationTimer() {
+					@Override
+					public void handle(long now) {
+						while (!packetBuffer.isEmpty()) {
+							parsePacket(packetBuffer.remove(0));
+						}
+					}
+				};
+				at.start();
 	}
 	
 	public Square[][] getBoard() {
@@ -72,5 +149,13 @@ public class StrategoGame extends Observable {
 	public void setChangedAndNotifyObservers() {
 		setChanged();
 		notifyObservers();
+	}
+	
+	public boolean isConnectedToServer() {
+		return clientSocket != null && clientSocket.isConnected();
+	}
+	
+	private void parsePacket(Packet p) {
+		
 	}
 }
