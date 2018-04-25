@@ -3,14 +3,14 @@ package model;
 public class InitializePacket extends Packet {
 
 	private static final long serialVersionUID = 1L;
-	private int clientNum;
+	private Team team;
 
-	public InitializePacket(int clientNum) {
+	public InitializePacket(Team team) {
 		super(PacketType.INITIALIZE_GAME);
-		this.clientNum = clientNum;
+		this.team = team;
 	}
 
-	public int getClientNum() {
-		return clientNum;
+	public Team getTeam() {
+		return team;
 	}
 }

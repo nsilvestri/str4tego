@@ -24,7 +24,7 @@ public enum Rank {
 			case BOMB :
 				return "B";
 			default :
-				return "U";
+				return "?";
 		}
 	}
 }

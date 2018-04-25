@@ -86,12 +86,14 @@ public class Server extends Application {
 				}
 			}
 
-			for (int i = 0; i < 4; i++) {
-				try {
-					clientOutputStreams[i].writeObject(new InitializePacket(i));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			/* All clients connected; tell them their team */
+			try {
+				clientOutputStreams[0].writeObject(new InitializePacket(Team.RED));
+				clientOutputStreams[1].writeObject(new InitializePacket(Team.GREEN));
+				clientOutputStreams[2].writeObject(new InitializePacket(Team.BLUE));
+				clientOutputStreams[3].writeObject(new InitializePacket(Team.YELLOW));
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}

@@ -79,8 +79,6 @@ public class StrategoGame extends Observable {
 				board[r][c].setMovable(false);
 			}
 		}
-
-		board[5][0].setOccupied(new Piece(Rank.FIVE, Team.GREEN));
 	}
 
 	private void initializeServerConnection() {
@@ -117,6 +115,7 @@ public class StrategoGame extends Observable {
 				try {
 					while (true) {
 						Packet p = (Packet) inFromServer.readObject();
+						System.out.println("Received " + p.getPacketType() + " from server.");
 						packetBuffer.add(p);
 					}
 				} catch (ClassNotFoundException | IOException e) {
@@ -155,6 +154,10 @@ public class StrategoGame extends Observable {
 	}
 
 	private void parsePacket(Packet p) {
-
+		if (p.getPacketType() == PacketType.INITIALIZE_GAME) {
+			InitializePacket ip = (InitializePacket) p;
+			System.out.println("I am team: " + ip.getTeam());
+			
+		}
 	}
 }
