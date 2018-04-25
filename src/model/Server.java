@@ -1,4 +1,4 @@
-package controller;
+package model;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,7 +26,7 @@ public class Server extends Application {
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
 		serverSocket = new ServerSocket(serverPort);
-		
+
 		connectedClients = new Socket[4];
 		clientOutputStreams = new ObjectOutputStream[4];
 		clientInputStreams = new ObjectInputStream[4];
@@ -85,7 +85,7 @@ public class Server extends Application {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (int i = 0; i < 4; i++) {
 				try {
 					clientOutputStreams[i].writeObject(new InitializePacket(i));

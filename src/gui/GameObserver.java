@@ -41,8 +41,8 @@ public class GameObserver extends BorderPane implements Observer {
 		this.game = (StrategoGame) o;
 
 		/*
-		 * not sure why this needs a Platform.runLater() but otherwise there
-		 * are NotOnFXApplicationThread exceptions.
+		 * not sure why this needs a Platform.runLater() but otherwise there are
+		 * NotOnFXApplicationThread exceptions.
 		 */
 		if (game.isConnectedToServer()) {
 			Platform.runLater(() -> {
@@ -67,7 +67,7 @@ public class GameObserver extends BorderPane implements Observer {
 				}
 
 				if (thisSquare.isOccupied()) {
-					gc.setFill(Color.RED);
+					gc.setFill(thisSquare.getOccupied().getTeam().getColor());
 					int margin = 3;
 					gc.fillRect(c * sqSize + margin, r * sqSize + margin, sqSize - (margin * 2), sqSize - (margin * 2));
 					gc.setFill(Color.WHITE);

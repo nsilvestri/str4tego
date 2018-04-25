@@ -2,29 +2,29 @@ package model;
 
 public enum Rank {
 	FLAG, EIGHT, SEVEN, SIX, FIVE, FOUR, THREE, TWO, BOMB, UNKNOWN;
-	
+
 	public String getSymbol() {
-		switch(this) {
-			case FLAG:
+		switch (this) {
+			case FLAG :
 				return "F";
-			case EIGHT:
+			case EIGHT :
 				return "8";
-			case SEVEN:
+			case SEVEN :
 				return "7";
-			case SIX:
+			case SIX :
 				return "6";
-			case FIVE:
+			case FIVE :
 				return "5";
-			case FOUR:
+			case FOUR :
 				return "4";
-			case THREE:
+			case THREE :
 				return "3";
-			case TWO:
+			case TWO :
 				return "2";
-			case BOMB:
+			case BOMB :
 				return "B";
-			default:
-				return "U";	
+			default :
+				return "U";
 		}
 	}
 }

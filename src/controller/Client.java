@@ -24,7 +24,6 @@ import model.StrategoGame;
 
 public class Client extends Application {
 
-
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		launch(args);
 	}
@@ -38,7 +37,7 @@ public class Client extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		window = new BorderPane();
-		
+
 		game = new StrategoGame();
 		gameObserver = new GameObserver(game);
 		game.addObserver(gameObserver);
@@ -49,6 +48,6 @@ public class Client extends Application {
 		Scene scene = new Scene(window, 600, 600);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-	
+
 	}
 }
