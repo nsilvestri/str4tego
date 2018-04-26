@@ -15,7 +15,7 @@ public enum Team {
 			case GREEN :
 				return Color.GREEN;
 			case YELLOW :
-				return Color.YELLOW;
+				return Color.GOLD;
 			case NONE:
 				return Color.BLACK;
 			default :

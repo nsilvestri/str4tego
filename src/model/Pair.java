@@ -22,7 +22,8 @@ public class Pair<L, R> {
 	public boolean equals(Object o) {
 		if (!(o instanceof Pair))
 			return false;
-		Pair pairo = (Pair) o;
+		@SuppressWarnings("unchecked")
+		Pair<L, R> pairo = (Pair<L, R>) o;
 		return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
 	}
 

@@ -7,10 +7,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Observer;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 
 public class StrategoGame extends Observable {
 
@@ -116,7 +114,6 @@ public class StrategoGame extends Observable {
 				try {
 					while (true) {
 						Packet p = (Packet) inFromServer.readObject();
-						System.out.println("Received " + p.getPacketType() + " from server.");
 						packetBuffer.add(p);
 					}
 				} catch (ClassNotFoundException | IOException e) {
@@ -134,7 +131,6 @@ public class StrategoGame extends Observable {
 			@Override
 			public void handle(long now) {
 				while (!packetBuffer.isEmpty()) {
-					System.out.println("found a packet");
 					parsePacket(packetBuffer.remove(0));
 				}
 			}
@@ -200,5 +196,13 @@ public class StrategoGame extends Observable {
 	
 	public Team getTeam() {
 		return team;
+	}
+	
+	public void sendPacket(Packet p) {
+		try {
+			outToServer.writeObject(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

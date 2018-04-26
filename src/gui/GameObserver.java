@@ -18,10 +18,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import model.Packet;
+import model.PacketType;
 import model.Piece;
 import model.Rank;
+import model.ReadyPacket;
 import model.Square;
 import model.StrategoGame;
+import model.Team;
 
 public class GameObserver extends BorderPane implements Observer {
 
@@ -48,7 +52,6 @@ public class GameObserver extends BorderPane implements Observer {
 
 	private Piece placingPiece;
 
-	// TODO: turn these into maps
 	private static HashMap<Rank, Integer> maxPieces;
 	private HashMap<Rank, Integer> canPlacePieces;
 	private HashMap<Rank, Button> rankButtonMap;
@@ -180,6 +183,9 @@ public class GameObserver extends BorderPane implements Observer {
 		}
 	}
 
+	/*
+	 * Parses clicks on the game board canvas.
+	 */
 	private class CanvasClickHandler implements EventHandler<MouseEvent> {
 
 		@Override
@@ -188,6 +194,7 @@ public class GameObserver extends BorderPane implements Observer {
 				return;
 			}
 
+			// ignore clicks if a piece isn't being placed
 			if (placingPiece == null) {
 				return;
 			}
@@ -195,15 +202,45 @@ public class GameObserver extends BorderPane implements Observer {
 			int r = (int) (mouse.getY() / sqSize);
 			int c = (int) (mouse.getX() / sqSize);
 
+			// return if the click is out of the bounds
+			if (game.getTeam() == Team.RED) {
+				if (c < 3 || c > 8 || r < 9 || r > 11) {
+					return;
+				}
+			} else if (game.getTeam() == Team.BLUE) {
+				if (c < 3 || c > 8 || r < 0 || r > 2) {
+					return;
+				}
+			} else if (game.getTeam() == Team.GREEN) {
+				if (c < 0 || c > 2 || r < 3 || r > 8) {
+					return;
+				}
+			}
+			else if (game.getTeam() == Team.YELLOW) {
+				if (c < 9 || c > 11 || r < 3 || r > 8) {
+					return;
+				}
+			}
 			game.setPiece(placingPiece, r, c);
 
+			// decrement the number of available pieces
 			canPlacePieces.put(placingPiece.getRank(), canPlacePieces.get(placingPiece.getRank()) - 1);
 
+			// disable buttons if the piece limit is reached
 			if (canPlacePieces.get(placingPiece.getRank()) == 0) {
 				rankButtonMap.get(placingPiece.getRank()).setDisable(true);
 			}
-
 			placingPiece = null;
+			
+			// check if that was the last piece placed, and send a ready packet if so
+			int piecesRemaining = 0;
+			for (int i : canPlacePieces.values()) {
+				piecesRemaining += i;
+			}
+			if (piecesRemaining == 0) {
+				game.sendPacket(new ReadyPacket(game.getTeam(), game.getBoard()));
+			}
+			
 		}
 	}
 
