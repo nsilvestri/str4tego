@@ -6,8 +6,8 @@ public class MovePacket extends Packet {
 
 	private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> move;
 
-	public MovePacket(PacketType type, Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> move) {
-		super(type);
+	public MovePacket(PacketType type, Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> move, Team source) {
+		super(type, source);
 		this.move = move;
 	}
 

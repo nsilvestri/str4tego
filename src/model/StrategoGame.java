@@ -162,7 +162,7 @@ public class StrategoGame extends Observable {
 		System.out.println("Received packet of type: " + p.getPacketType());
 		if (p.getPacketType() == PacketType.INITIALIZE_GAME) {
 			InitializePacket ip = (InitializePacket) p;
-			team = ip.getTeam();
+			team = ip.getSource();
 
 			// Initialize red pieces
 			for (int r = 9; r < 12; r++) {
@@ -191,14 +191,14 @@ public class StrategoGame extends Observable {
 					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.YELLOW));
 				}
 			}
-			
+
 			fillDummyDataAndSendReadyPacket();
 
-			setChangedAndNotifyObservers();
-			
 		} else if (p.getPacketType() == PacketType.ALL_CLIENTS_READY) {
 			turn = Team.RED;
 		}
+
+		setChangedAndNotifyObservers();
 	}
 
 	public Team whoseTurn() {
@@ -226,7 +226,6 @@ public class StrategoGame extends Observable {
 	private void fillDummyDataAndSendReadyPacket() {
 		switch (team) {
 			case RED :
-				System.out.println("My team: " + team);
 				for (int r = 9; r < 12; r++) {
 					for (int c = 3; c < 9; c++) {
 						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.RED));
@@ -234,7 +233,6 @@ public class StrategoGame extends Observable {
 				}
 				break;
 			case GREEN :
-				System.out.println("My team: " + team);
 				// Initialize GREEN pieces
 				for (int r = 3; r < 9; r++) {
 					for (int c = 0; c < 3; c++) {
@@ -244,7 +242,6 @@ public class StrategoGame extends Observable {
 				break;
 
 			case BLUE :
-				System.out.println("My team: " + team);
 				// Initialize blue pieces
 				for (int r = 0; r < 3; r++) {
 					for (int c = 3; c < 9; c++) {
@@ -254,7 +251,6 @@ public class StrategoGame extends Observable {
 				break;
 
 			case YELLOW :
-				System.out.println("My team: " + team);
 				// Initialize yellow pieces
 				for (int r = 3; r < 9; r++) {
 					for (int c = 9; c < 12; c++) {
@@ -262,13 +258,12 @@ public class StrategoGame extends Observable {
 					}
 				}
 				break;
-			default:
+			default :
 				System.err.println("Wrong team type received: " + team);
 				break;
 		}
-		
+
 		sendPacket(new ClientReadyPacket(team, board));
 	}
-	
 
 }

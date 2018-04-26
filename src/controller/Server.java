@@ -35,6 +35,7 @@ public class Server extends Application {
 	private static Square[][] serverBoard;
 	private static Canvas canvas;
 	private static GraphicsContext gc;
+	private static VBox statusLabels;
 
 	private final static int serverPort = 9998;
 	private static ServerSocket serverSocket;
@@ -48,7 +49,7 @@ public class Server extends Application {
 	private static boolean greenReady = false;
 	private static boolean blueReady = false;
 	private static boolean yellowReady = false;
-	
+
 	private static Team turn;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
@@ -70,7 +71,7 @@ public class Server extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		window = new BorderPane();
-		
+
 		canvas = new Canvas(480, 480);
 		gc = canvas.getGraphicsContext2D();
 		window.setCenter(canvas);
@@ -81,7 +82,7 @@ public class Server extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		VBox statusLabels = new VBox();
+		statusLabels = new VBox();
 		connectionStatuses = new Label[4];
 		for (int i = 0; i < 4; i++) {
 			connectionStatuses[i] = new Label("Client " + (i + 1) + " not connected.");
@@ -204,19 +205,19 @@ public class Server extends Application {
 	}
 
 	private void parseNextPacket() {
+		Packet p = packetBuffer.remove(0);
 		// special check if a game is being readied up
 		if (!gameInProgress) {
 			// trash any packet that isn't a READY packet
-			if (packetBuffer.get(0).getPacketType() != PacketType.READY) {
-				packetBuffer.remove(0);
+			if (p.getPacketType() != PacketType.READY) {
 				return;
 			}
 
-			ClientReadyPacket p = (ClientReadyPacket) packetBuffer.remove(0);
-			Square[][] packetBoard = p.getBoard();
+			ClientReadyPacket crp = (ClientReadyPacket) p;
+			Square[][] packetBoard = crp.getBoard();
 
 			// copy the given board to the server's board
-			switch (p.getTeam()) {
+			switch (crp.getSource()) {
 				case RED :
 					for (int r = 9; r < 12; r++) {
 						for (int c = 3; c < 9; c++) {
@@ -228,7 +229,7 @@ public class Server extends Application {
 
 					redReady = true;
 					break;
-					
+
 				case GREEN :
 
 					for (int r = 3; r < 9; r++) {
@@ -241,6 +242,7 @@ public class Server extends Application {
 
 					greenReady = true;
 					break;
+					
 				case BLUE :
 
 					for (int r = 0; r < 3; r++) {
@@ -253,6 +255,7 @@ public class Server extends Application {
 
 					blueReady = true;
 					break;
+					
 				case YELLOW :
 
 					for (int r = 3; r < 9; r++) {
@@ -261,20 +264,23 @@ public class Server extends Application {
 							Piece newPiece = new Piece(clientPiece.getRank(), clientPiece.getTeam());
 							serverBoard[r][c].setOccupied(newPiece);
 						}
-						
+
 					}
 					yellowReady = true;
 					break;
+					
 				default :
+					System.err.println("Unknown team type");
 					break;
 			}
-			
-			// check if all clients are ready and send the clients the ready sign
+
+			// check if all clients are ready and send the clients the ready
+			// sign
 			if (redReady && greenReady && blueReady && yellowReady) {
 				System.out.println("All clients ready.");
 				gameInProgress = true;
 				Packet acrp = new AllClientsReadyPacket();
-				
+
 				for (int i = 0; i < 4; i++) {
 					try {
 						clientOutputStreams[i].writeObject(acrp);
@@ -282,11 +288,19 @@ public class Server extends Application {
 						e.printStackTrace();
 					}
 				}
-				
+
 				turn = Team.RED;
 			}
-			
+
 			drawBoard();
+		}
+
+		// parse move packets
+		else if (p.getPacketType() == PacketType.MOVE) {
+			// trash any packet from a client whose not waiting its turn
+			if (p.getSource() != turn) {
+				return;
+			}
 		}
 	}
 
@@ -294,9 +308,9 @@ public class Server extends Application {
 	 * draws the board on the GraphicsContext
 	 */
 	private void drawBoard() {
-		
+
 		int sqSize = 40;
-		
+
 		for (int r = 0; r < serverBoard.length; r++) {
 			for (int c = 0; c < serverBoard[r].length; c++) {
 
@@ -321,7 +335,7 @@ public class Server extends Application {
 			}
 		}
 	}
-	
+
 	/**
 	 * Initializes the board instance and declares which squares are unmovable.
 	 */

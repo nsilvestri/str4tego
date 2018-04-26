@@ -49,7 +49,7 @@ public class GameObserver extends BorderPane implements Observer {
 	private Button twoButton;
 	private Button bombButton;
 	private Button flagButton;
-	
+
 	private Label whoseTurn;
 
 	private Piece placingPiece;
@@ -77,9 +77,10 @@ public class GameObserver extends BorderPane implements Observer {
 
 		connectionStatus = new Label("Connecting to server...");
 		rightMenu.getChildren().add(connectionStatus);
-		
-		whoseTurn = new Label("");
-		
+
+		whoseTurn = new Label();
+		rightMenu.getChildren().add(whoseTurn);
+
 		this.setRight(rightMenu);
 	}
 
@@ -186,7 +187,8 @@ public class GameObserver extends BorderPane implements Observer {
 				}
 			}
 		}
-		
+
+		System.out.println("Whose turn: " + game.whoseTurn());
 		if (game.whoseTurn() != null) {
 			whoseTurn.setText(game.whoseTurn() + "'s turn.");
 		}
@@ -224,8 +226,7 @@ public class GameObserver extends BorderPane implements Observer {
 				if (c < 0 || c > 2 || r < 3 || r > 8) {
 					return;
 				}
-			}
-			else if (game.getTeam() == Team.YELLOW) {
+			} else if (game.getTeam() == Team.YELLOW) {
 				if (c < 9 || c > 11 || r < 3 || r > 8) {
 					return;
 				}
@@ -240,8 +241,9 @@ public class GameObserver extends BorderPane implements Observer {
 				rankButtonMap.get(placingPiece.getRank()).setDisable(true);
 			}
 			placingPiece = null;
-			
-			// check if that was the last piece placed, and send a ready packet if so
+
+			// check if that was the last piece placed, and send a ready packet
+			// if so
 			int piecesRemaining = 0;
 			for (int i : canPlacePieces.values()) {
 				piecesRemaining += i;
@@ -249,7 +251,7 @@ public class GameObserver extends BorderPane implements Observer {
 			if (piecesRemaining == 0) {
 				game.sendPacket(new ClientReadyPacket(game.getTeam(), game.getBoard()));
 			}
-			
+
 		}
 	}
 
