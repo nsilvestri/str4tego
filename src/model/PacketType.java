@@ -1,5 +1,5 @@
 package model;
 
 public enum PacketType {
-	INITIALIZE_GAME, READY, MOVE;
+	INITIALIZE_GAME, READY, MOVE, ALL_CLIENTS_READY;
 }

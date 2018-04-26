@@ -22,7 +22,7 @@ import model.Packet;
 import model.PacketType;
 import model.Piece;
 import model.Rank;
-import model.ReadyPacket;
+import model.ClientReadyPacket;
 import model.Square;
 import model.StrategoGame;
 import model.Team;
@@ -49,6 +49,8 @@ public class GameObserver extends BorderPane implements Observer {
 	private Button twoButton;
 	private Button bombButton;
 	private Button flagButton;
+	
+	private Label whoseTurn;
 
 	private Piece placingPiece;
 
@@ -75,6 +77,9 @@ public class GameObserver extends BorderPane implements Observer {
 
 		connectionStatus = new Label("Connecting to server...");
 		rightMenu.getChildren().add(connectionStatus);
+		
+		whoseTurn = new Label("");
+		
 		this.setRight(rightMenu);
 	}
 
@@ -181,6 +186,10 @@ public class GameObserver extends BorderPane implements Observer {
 				}
 			}
 		}
+		
+		if (game.whoseTurn() != null) {
+			whoseTurn.setText(game.whoseTurn() + "'s turn.");
+		}
 	}
 
 	/*
@@ -238,7 +247,7 @@ public class GameObserver extends BorderPane implements Observer {
 				piecesRemaining += i;
 			}
 			if (piecesRemaining == 0) {
-				game.sendPacket(new ReadyPacket(game.getTeam(), game.getBoard()));
+				game.sendPacket(new ClientReadyPacket(game.getTeam(), game.getBoard()));
 			}
 			
 		}

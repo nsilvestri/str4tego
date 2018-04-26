@@ -22,6 +22,8 @@ public class StrategoGame extends Observable {
 	private static ObjectInputStream inFromServer;
 	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
 
+	private Team turn;
+
 	public StrategoGame() {
 		initializeBoard();
 		team = Team.NONE;
@@ -141,7 +143,7 @@ public class StrategoGame extends Observable {
 	public Square[][] getBoard() {
 		return board;
 	}
-	
+
 	public void setPiece(Piece p, int r, int c) {
 		board[r][c].setOccupied(p);
 		setChangedAndNotifyObservers();
@@ -157,9 +159,9 @@ public class StrategoGame extends Observable {
 	}
 
 	private void parsePacket(Packet p) {
+		System.out.println("Received packet of type: " + p.getPacketType());
 		if (p.getPacketType() == PacketType.INITIALIZE_GAME) {
 			InitializePacket ip = (InitializePacket) p;
-
 			team = ip.getTeam();
 
 			// Initialize red pieces
@@ -190,14 +192,29 @@ public class StrategoGame extends Observable {
 				}
 			}
 			
+			fillDummyDataAndSendReadyPacket();
+
 			setChangedAndNotifyObservers();
+			
+		} else if (p.getPacketType() == PacketType.ALL_CLIENTS_READY) {
+			turn = Team.RED;
 		}
 	}
-	
+
+	public Team whoseTurn() {
+		return turn;
+	}
+
 	public Team getTeam() {
 		return team;
 	}
-	
+
+	/**
+	 * Writes the given Packet to the connected Server.
+	 * 
+	 * @param p
+	 *            - the Packet to write to the connected Server.
+	 */
 	public void sendPacket(Packet p) {
 		try {
 			outToServer.writeObject(p);
@@ -205,4 +222,53 @@ public class StrategoGame extends Observable {
 			e.printStackTrace();
 		}
 	}
+
+	private void fillDummyDataAndSendReadyPacket() {
+		switch (team) {
+			case RED :
+				System.out.println("My team: " + team);
+				for (int r = 9; r < 12; r++) {
+					for (int c = 3; c < 9; c++) {
+						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.RED));
+					}
+				}
+				break;
+			case GREEN :
+				System.out.println("My team: " + team);
+				// Initialize GREEN pieces
+				for (int r = 3; r < 9; r++) {
+					for (int c = 0; c < 3; c++) {
+						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
+					}
+				}
+				break;
+
+			case BLUE :
+				System.out.println("My team: " + team);
+				// Initialize blue pieces
+				for (int r = 0; r < 3; r++) {
+					for (int c = 3; c < 9; c++) {
+						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
+					}
+				}
+				break;
+
+			case YELLOW :
+				System.out.println("My team: " + team);
+				// Initialize yellow pieces
+				for (int r = 3; r < 9; r++) {
+					for (int c = 9; c < 12; c++) {
+						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
+					}
+				}
+				break;
+			default:
+				System.err.println("Wrong team type received: " + team);
+				break;
+		}
+		
+		sendPacket(new ClientReadyPacket(team, board));
+	}
+	
+
 }

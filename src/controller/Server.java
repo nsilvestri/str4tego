@@ -23,7 +23,9 @@ import javafx.stage.Stage;
 import model.InitializePacket;
 import model.Packet;
 import model.PacketType;
-import model.ReadyPacket;
+import model.Piece;
+import model.AllClientsReadyPacket;
+import model.ClientReadyPacket;
 import model.Square;
 import model.StrategoGame;
 import model.Team;
@@ -46,6 +48,8 @@ public class Server extends Application {
 	private static boolean greenReady = false;
 	private static boolean blueReady = false;
 	private static boolean yellowReady = false;
+	
+	private static Team turn;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 
@@ -208,7 +212,7 @@ public class Server extends Application {
 				return;
 			}
 
-			ReadyPacket p = (ReadyPacket) packetBuffer.remove(0);
+			ClientReadyPacket p = (ClientReadyPacket) packetBuffer.remove(0);
 			Square[][] packetBoard = p.getBoard();
 
 			// copy the given board to the server's board
@@ -216,45 +220,79 @@ public class Server extends Application {
 				case RED :
 					for (int r = 9; r < 12; r++) {
 						for (int c = 3; c < 9; c++) {
-							serverBoard[r][c].setOccupied(packetBoard[r][c].getOccupied());
+							Piece clientPiece = packetBoard[r][c].getOccupied();
+							Piece newPiece = new Piece(clientPiece.getRank(), clientPiece.getTeam());
+							serverBoard[r][c].setOccupied(newPiece);
 						}
 					}
 
 					redReady = true;
+					break;
+					
 				case GREEN :
 
 					for (int r = 3; r < 9; r++) {
 						for (int c = 0; c < 3; c++) {
-							serverBoard[r][c].setOccupied(packetBoard[r][c].getOccupied());
+							Piece clientPiece = packetBoard[r][c].getOccupied();
+							Piece newPiece = new Piece(clientPiece.getRank(), clientPiece.getTeam());
+							serverBoard[r][c].setOccupied(newPiece);
 						}
 					}
 
 					greenReady = true;
+					break;
 				case BLUE :
 
 					for (int r = 0; r < 3; r++) {
 						for (int c = 3; c < 9; c++) {
-							serverBoard[r][c].setOccupied(packetBoard[r][c].getOccupied());
+							Piece clientPiece = packetBoard[r][c].getOccupied();
+							Piece newPiece = new Piece(clientPiece.getRank(), clientPiece.getTeam());
+							serverBoard[r][c].setOccupied(newPiece);
 						}
 					}
 
 					blueReady = true;
+					break;
 				case YELLOW :
 
 					for (int r = 3; r < 9; r++) {
 						for (int c = 9; c < 12; c++) {
-							serverBoard[r][c].setOccupied(packetBoard[r][c].getOccupied());
+							Piece clientPiece = packetBoard[r][c].getOccupied();
+							Piece newPiece = new Piece(clientPiece.getRank(), clientPiece.getTeam());
+							serverBoard[r][c].setOccupied(newPiece);
 						}
 						
 					}
 					yellowReady = true;
+					break;
 				default :
+					break;
+			}
+			
+			// check if all clients are ready and send the clients the ready sign
+			if (redReady && greenReady && blueReady && yellowReady) {
+				System.out.println("All clients ready.");
+				gameInProgress = true;
+				Packet acrp = new AllClientsReadyPacket();
+				
+				for (int i = 0; i < 4; i++) {
+					try {
+						clientOutputStreams[i].writeObject(acrp);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				turn = Team.RED;
 			}
 			
 			drawBoard();
 		}
 	}
 
+	/*
+	 * draws the board on the GraphicsContext
+	 */
 	private void drawBoard() {
 		
 		int sqSize = 40;
