@@ -18,8 +18,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import model.Packet;
-import model.PacketType;
 import model.Piece;
 import model.Rank;
 import model.ClientReadyPacket;
@@ -53,6 +51,8 @@ public class GameObserver extends BorderPane implements Observer {
 	private Label whoseTurn;
 
 	private Piece placingPiece;
+
+	private Piece selectedPiece;
 
 	private static HashMap<Rank, Integer> maxPieces;
 	private HashMap<Rank, Integer> canPlacePieces;
@@ -161,14 +161,42 @@ public class GameObserver extends BorderPane implements Observer {
 
 		teamColorLabel.setText("Team: " + game.getTeam().toString());
 
-		Square[][] board = game.getBoard();
+		if (game.whoseTurn() != null) {
+			whoseTurn.setText(game.whoseTurn() + "'s turn.");
+		}
 
-		/* draw the board */
+		drawBoard();
+
+	}
+
+	public void drawBoard() {
+		// reset to a white canvas
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		
+		/* draw the board squares */
+		Square[][] board = game.getBoard();
 		for (int r = 0; r < board.length; r++) {
 			for (int c = 0; c < board[r].length; c++) {
 
 				Square thisSquare = board[r][c];
+			
+				if (thisSquare.isOccupied() && thisSquare.getOccupied() == selectedPiece) {
+					gc.setFill(Color.LIGHTBLUE);
+					gc.fillRect((c) * sqSize, (r - 1) * sqSize, sqSize, sqSize);
+					gc.fillRect((c) * sqSize, (r + 1) * sqSize, sqSize, sqSize);
+					gc.fillRect((c - 1) * sqSize, (r) * sqSize, sqSize, sqSize);
+					gc.fillRect((c + 1) * sqSize, (r) * sqSize, sqSize, sqSize);
+				}
+			}
+		}
+		
+		/* draw the board pieces */
+		for (int r = 0; r < board.length; r++) {
+			for (int c = 0; c < board[r].length; c++) {
 
+				Square thisSquare = board[r][c];
+				
 				gc.setFill(Color.BLACK);
 				gc.setStroke(Color.BLACK);
 				if (!thisSquare.isMoveable()) {
@@ -187,11 +215,6 @@ public class GameObserver extends BorderPane implements Observer {
 				}
 			}
 		}
-
-		System.out.println("Whose turn: " + game.whoseTurn());
-		if (game.whoseTurn() != null) {
-			whoseTurn.setText(game.whoseTurn() + "'s turn.");
-		}
 	}
 
 	/*
@@ -201,57 +224,86 @@ public class GameObserver extends BorderPane implements Observer {
 
 		@Override
 		public void handle(MouseEvent mouse) {
+
+			int mouseRow = (int) (mouse.getY() / sqSize);
+			int mouseColumn = (int) (mouse.getX() / sqSize);
+
+			// only allow MOUSE_CLICKED events
 			if (mouse.getEventType() != MouseEvent.MOUSE_CLICKED) {
 				return;
 			}
 
-			// ignore clicks if a piece isn't being placed
-			if (placingPiece == null) {
+			// handle setup actions
+			if (game.getSetup()) {
+
+				// ignore clicks if a button wasn't specified to be clicked
+				if (placingPiece == null) {
+					return;
+				}
+
+				// return if the click is out of the bounds
+				if (game.getTeam() == Team.RED) {
+					if (mouseColumn < 3 || mouseColumn > 8 || mouseRow < 9 || mouseRow > 11) {
+						return;
+					}
+				} else if (game.getTeam() == Team.BLUE) {
+					if (mouseColumn < 3 || mouseColumn > 8 || mouseRow < 0 || mouseRow > 2) {
+						return;
+					}
+				} else if (game.getTeam() == Team.GREEN) {
+					if (mouseColumn < 0 || mouseColumn > 2 || mouseRow < 3 || mouseRow > 8) {
+						return;
+					}
+				} else if (game.getTeam() == Team.YELLOW) {
+					if (mouseColumn < 9 || mouseColumn > 11 || mouseRow < 3 || mouseRow > 8) {
+						return;
+					}
+				}
+				game.setPiece(placingPiece, mouseRow, mouseColumn);
+
+				// decrement the number of available pieces
+				canPlacePieces.put(placingPiece.getRank(), canPlacePieces.get(placingPiece.getRank()) - 1);
+
+				// disable buttons if the piece limit is reached
+				if (canPlacePieces.get(placingPiece.getRank()) == 0) {
+					rankButtonMap.get(placingPiece.getRank()).setDisable(true);
+				}
+				placingPiece = null;
+
+				// check if that was the last piece placed, and send a ready
+				// packet if so
+				int piecesRemaining = 0;
+				for (int i : canPlacePieces.values()) {
+					piecesRemaining += i;
+				}
+				if (piecesRemaining == 0) {
+					game.setSetup(true);
+					game.sendPacket(new ClientReadyPacket(game.getTeam(), game.getBoard()));
+				}
+			}
+
+			// only allow clicking if it's the user's turn
+			if (game.whoseTurn() != game.getTeam()) {
+				System.out.println("not your turn");
 				return;
 			}
 
-			int r = (int) (mouse.getY() / sqSize);
-			int c = (int) (mouse.getX() / sqSize);
-
-			// return if the click is out of the bounds
-			if (game.getTeam() == Team.RED) {
-				if (c < 3 || c > 8 || r < 9 || r > 11) {
-					return;
-				}
-			} else if (game.getTeam() == Team.BLUE) {
-				if (c < 3 || c > 8 || r < 0 || r > 2) {
-					return;
-				}
-			} else if (game.getTeam() == Team.GREEN) {
-				if (c < 0 || c > 2 || r < 3 || r > 8) {
-					return;
-				}
-			} else if (game.getTeam() == Team.YELLOW) {
-				if (c < 9 || c > 11 || r < 3 || r > 8) {
-					return;
-				}
-			}
-			game.setPiece(placingPiece, r, c);
-
-			// decrement the number of available pieces
-			canPlacePieces.put(placingPiece.getRank(), canPlacePieces.get(placingPiece.getRank()) - 1);
-
-			// disable buttons if the piece limit is reached
-			if (canPlacePieces.get(placingPiece.getRank()) == 0) {
-				rankButtonMap.get(placingPiece.getRank()).setDisable(true);
-			}
-			placingPiece = null;
-
-			// check if that was the last piece placed, and send a ready packet
-			// if so
-			int piecesRemaining = 0;
-			for (int i : canPlacePieces.values()) {
-				piecesRemaining += i;
-			}
-			if (piecesRemaining == 0) {
-				game.sendPacket(new ClientReadyPacket(game.getTeam(), game.getBoard()));
+			// ignore clicks on empty Square
+			if (!game.getBoard()[mouseRow][mouseColumn].isOccupied()) {
+				System.out.println("empty square");
+				return;
 			}
 
+			// don't allow actions on other players' pieces
+			if (game.getBoard()[mouseRow][mouseColumn].getOccupied().getTeam() != game.getTeam()) {
+				System.out.println("not your team");
+				return;
+			}
+
+			selectedPiece = game.getBoard()[mouseRow][mouseColumn].getOccupied();
+			System.out.printf("Selected piece: " + selectedPiece.getRank() + " at [%d, %d]", mouseRow, mouseColumn);
+			
+			drawBoard();
 		}
 	}
 

@@ -21,6 +21,8 @@ public class StrategoGame extends Observable {
 	private static ObjectOutputStream outToServer;
 	private static ObjectInputStream inFromServer;
 	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
+	
+	private boolean setup = true;
 
 	private Team turn;
 
@@ -263,7 +265,15 @@ public class StrategoGame extends Observable {
 				break;
 		}
 
+		setup = false;
 		sendPacket(new ClientReadyPacket(team, board));
 	}
 
+	public boolean getSetup() {
+		return setup;
+	}
+	
+	public void setSetup(boolean b) {
+		setup = b;
+	}
 }

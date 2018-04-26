@@ -22,7 +22,7 @@ public class Client extends Application {
 	private Observer gameObserver;
 
 	private BorderPane window;
-
+ 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
