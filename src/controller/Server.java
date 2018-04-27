@@ -390,10 +390,7 @@ public class Server extends Application
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
 					}
-					else
-					{
-						serverBoard[r][c].setOccupied(null);
-					}
+					serverBoard[r][c].setOccupied(null);
 				}
 				break;
 			case DOWN:
@@ -414,10 +411,7 @@ public class Server extends Application
 						sendPacketToAll(mp);
 
 					}
-					else
-					{
-						serverBoard[r][c].setOccupied(null);
-					}
+					serverBoard[r][c].setOccupied(null);
 				}
 				break;
 			case LEFT:
@@ -436,10 +430,7 @@ public class Server extends Application
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
 					}
-					else
-					{
-						serverBoard[r][c].setOccupied(null);
-					}
+					serverBoard[r][c].setOccupied(null);
 				}
 				break;
 			case RIGHT:
@@ -458,10 +449,7 @@ public class Server extends Application
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
 					}
-					else
-					{
-						serverBoard[r][c].setOccupied(null);
-					}
+					serverBoard[r][c].setOccupied(null);
 				}
 				break;
 			default:

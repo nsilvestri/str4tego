@@ -265,88 +265,36 @@ public class StrategoGame extends Observable
 				board[r][c].setOccupied(null);
 				return;
 			}
-			
+
 			// sucessful move
 			Piece movedPiece = board[r][c].getOccupied();
-			
+
 			switch (dir)
 			{
 			case UP:
-				if (!board[r - 1][c].isOccupied())
-				{
-					board[r][c].setOccupied(null);
-					board[r - 1][c].setOccupied(movedPiece);
-				}
-				else
-				{
-					if (movedPiece.getRank().getValue() >= board[r - 1][c].getOccupied().getRank().getValue())
-					{
-						board[r - 1][c].setOccupied(movedPiece);
-					}
-					else
-					{
-						board[r][c].setOccupied(null);
-					}
-				}
+				board[r][c].setOccupied(null);
+				board[r - 1][c].setOccupied(movedPiece);
+
 				break;
 			case DOWN:
-				if (!board[r + 1][c].isOccupied())
-				{
-					board[r][c].setOccupied(null);
-					board[r + 1][c].setOccupied(movedPiece);
-				}
-				else
-				{
-					if (movedPiece.getRank().getValue() >= board[r + 1][c].getOccupied().getRank().getValue())
-					{
-						board[r + 1][c].setOccupied(movedPiece);
-					}
-					else
-					{
-						board[r][c].setOccupied(null);
-					}
-				}
+				board[r][c].setOccupied(null);
+				board[r + 1][c].setOccupied(movedPiece);
+				
 				break;
 			case LEFT:
-				if (!board[r][c - 1].isOccupied())
-				{
-					board[r][c].setOccupied(null);
-					board[r][c - 1].setOccupied(movedPiece);
-				}
-				else
-				{
-					if (movedPiece.getRank().getValue() >= board[r][c - 1].getOccupied().getRank().getValue())
-					{
-						board[r][c - 1].setOccupied(movedPiece);
-					}
-					else
-					{
-						board[r][c].setOccupied(null);
-					}
-				}
+				board[r][c].setOccupied(null);
+				board[r][c - 1].setOccupied(movedPiece);
+				
 				break;
 			case RIGHT:
-				if (!board[r][c + 1].isOccupied())
-				{
-					board[r][c].setOccupied(null);
-					board[r][c + 1].setOccupied(movedPiece);
-				}
-				else
-				{
-					if (movedPiece.getRank().getValue() >= board[r][c + 1].getOccupied().getRank().getValue())
-					{
-						board[r][c + 1].setOccupied(movedPiece);
-					}
-					else
-					{
-						board[r][c].setOccupied(null);
-					}
-				}
+				board[r][c].setOccupied(null);
+				board[r][c + 1].setOccupied(movedPiece);
+				
 				break;
 			default:
 				System.out.println("something wrong happened in the move parsing");
 			}
-			turn = Team.whoseTurnNext(team);
+			turn = Team.whoseTurnNext(turn);
 		}
 
 		setChangedAndNotifyObservers();
