@@ -327,22 +327,65 @@ public class GameObserver extends BorderPane implements Observer
 				Packet mp = null;
 				// get the direction of the click from the selected piece
 				Direction dir = null;
-				if (game.getBoard()[mouseRow - 1][mouseCol].getOccupied() == selectedPiece)
+				
+				Square sqAbove = null;
+				// try/catches prevent array index out of bounds
+				try
+				{
+					 sqAbove = game.getBoard()[mouseRow - 1][mouseCol];
+				}
+				catch (ArrayIndexOutOfBoundsException e)
+				{
+					sqAbove = new Square();
+				}
+				
+				Square sqBelow;
+				try
+				{
+					sqBelow = game.getBoard()[mouseRow + 1][mouseCol];
+				}
+				catch (ArrayIndexOutOfBoundsException e)
+				{
+					sqBelow = new Square();
+				}
+
+				Square sqLeft = null;
+				try
+				{
+					 sqLeft = game.getBoard()[mouseRow][mouseCol - 1];
+				}
+				catch (ArrayIndexOutOfBoundsException e)
+				{
+					sqLeft = new Square();
+				}
+
+				Square sqRight = null;
+				try
+				{
+					sqRight = game.getBoard()[mouseRow][mouseCol + 1];
+				}
+				catch (ArrayIndexOutOfBoundsException e)
+				{
+					sqRight = new Square();
+				}
+				
+				
+				if (sqAbove.getOccupied() == selectedPiece)
 				{
 					dir = Direction.DOWN;
 					mp = new MovePacket(new Pair<Integer, Integer>(mouseRow - 1, mouseCol), dir, game.getTeam());
 				}
-				else if (game.getBoard()[mouseRow + 1][mouseCol].getOccupied() == selectedPiece)
+				else if (sqBelow.getOccupied() == selectedPiece)
 				{
 					dir = Direction.UP;
 					mp = new MovePacket(new Pair<Integer, Integer>(mouseRow + 1, mouseCol), dir, game.getTeam());
 				}
-				else if (game.getBoard()[mouseRow][mouseCol - 1].getOccupied() == selectedPiece)
+				else if (sqLeft.getOccupied() == selectedPiece)
 				{
 					dir = Direction.RIGHT;
 					mp = new MovePacket(new Pair<Integer, Integer>(mouseRow, mouseCol - 1), dir, game.getTeam());
 				}
-				else if (game.getBoard()[mouseRow][mouseCol + 1].getOccupied() == selectedPiece)
+				else if (sqRight.getOccupied() == selectedPiece)
 				{
 					dir = Direction.LEFT;
 					mp = new MovePacket(new Pair<Integer, Integer>(mouseRow, mouseCol + 1), dir, game.getTeam());
@@ -354,9 +397,11 @@ public class GameObserver extends BorderPane implements Observer
 
 				if (clickedSquare.isOccupied())
 				{
-					// return if trying to move onto piece of the same team
+					// if clicked a piece on the same team, make that the selected piece
 					if (clickedSquare.getOccupied().getTeam() == game.getTeam())
 					{
+						selectedPiece = clickedSquare.getOccupied();
+						drawBoard();
 						return;
 					}
 				}
