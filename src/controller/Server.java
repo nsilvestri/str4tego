@@ -25,9 +25,11 @@ import model.MovePacket;
 import model.Packet;
 import model.PacketType;
 import model.Piece;
+import model.Rank;
 import model.AllClientsReadyPacket;
 import model.ClientReadyPacket;
 import model.Direction;
+import model.EliminationPacket;
 import model.Square;
 import model.StrategoGame;
 import model.Team;
@@ -54,6 +56,7 @@ public class Server extends Application
 	private static boolean yellowReady = false;
 
 	private static Team turn;
+	private static ArrayList<Team> eliminated = new ArrayList<>();
 
 	public static void main(String[] args) throws UnknownHostException, IOException
 	{
@@ -383,6 +386,13 @@ public class Server extends Application
 				}
 				else
 				{
+					// if the captured piece was the flag, tell the clients a player got eliminated
+					if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
+					{
+						eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
+						Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
+						sendPacketToAll(ep);
+					}
 					if (movedPiece.getRank().getValue() >= serverBoard[r - 1][c].getOccupied().getRank().getValue())
 					{
 						serverBoard[r - 1][c].setOccupied(movedPiece);
@@ -404,6 +414,13 @@ public class Server extends Application
 				}
 				else
 				{
+					// if the captured piece was the flag, tell the clients a player got eliminated
+					if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
+					{
+						eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
+						Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
+						sendPacketToAll(ep);
+					}
 					if (movedPiece.getRank().getValue() >= serverBoard[r + 1][c].getOccupied().getRank().getValue())
 					{
 						serverBoard[r + 1][c].setOccupied(movedPiece);
@@ -426,6 +443,13 @@ public class Server extends Application
 				{
 					if (movedPiece.getRank().getValue() >= serverBoard[r][c - 1].getOccupied().getRank().getValue())
 					{
+						// if the captured piece was the flag, tell the clients a player got eliminated
+						if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
+						{
+							eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
+							Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
+							sendPacketToAll(ep);
+						}
 						serverBoard[r][c - 1].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
@@ -445,6 +469,13 @@ public class Server extends Application
 				{
 					if (movedPiece.getRank().getValue() >= serverBoard[r][c + 1].getOccupied().getRank().getValue())
 					{
+						// if the captured piece was the flag, tell the clients a player got eliminated
+						if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
+						{
+							eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
+							Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
+							sendPacketToAll(ep);
+						}
 						serverBoard[r][c + 1].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
@@ -456,7 +487,12 @@ public class Server extends Application
 				System.out.println("something wrong happened in the move parsing");
 			}
 			
-			turn = Team.whoseTurnNext(turn);
+			// change turns, but skip them if they are eliminated
+			do
+			{
+				turn = Team.whoseTurnNext(turn);	
+			}
+			while (eliminated.contains(turn));
 		}
 		
 		drawBoard();
@@ -562,27 +598,6 @@ public class Server extends Application
 			for (int c = 5; c < 7; c++)
 			{
 				serverBoard[r][c].setMovable(false);
-			}
-		}
-	}
-
-	/**
-	 * Sends the given packet to all connected Clients.
-	 * 
-	 * @param p - the packet to be sent.
-	 */
-	private void sendPacket(Packet p)
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			try
-			{
-				clientOutputStreams[i].writeObject(p);
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}

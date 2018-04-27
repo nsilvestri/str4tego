@@ -24,6 +24,7 @@ public class StrategoGame extends Observable
 	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
 
 	private boolean setup = true;
+	private static ArrayList<Team> eliminated = new ArrayList<>();
 
 	private Team turn;
 
@@ -294,7 +295,17 @@ public class StrategoGame extends Observable
 			default:
 				System.out.println("something wrong happened in the move parsing");
 			}
-			turn = Team.whoseTurnNext(turn);
+
+			// change turns, but skip them if they are eliminated
+			do
+			{
+				turn = Team.whoseTurnNext(turn);	
+			}
+			while (eliminated.contains(turn));
+		}
+		else if (p.getPacketType() == PacketType.ELIMINATION) {
+			EliminationPacket ep = (EliminationPacket) p;
+			eliminated.add(ep.getEliminated());
 		}
 
 		setChangedAndNotifyObservers();
@@ -337,7 +348,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 3; c < 9; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.RED));
+					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.RED));
 				}
 			}
 			break;
@@ -347,7 +358,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 0; c < 3; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
+					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.GREEN));
 				}
 			}
 			break;
@@ -358,7 +369,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 3; c < 9; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
+					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.BLUE));
 				}
 			}
 			break;
@@ -369,7 +380,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 9; c < 12; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
+					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.YELLOW));
 				}
 			}
 			break;
