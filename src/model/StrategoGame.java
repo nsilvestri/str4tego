@@ -121,7 +121,7 @@ public class StrategoGame extends Observable
 				// hopefully stops the server from thinking it's getting DOS'd
 				try
 				{
-					Thread.sleep(1500);
+					Thread.sleep(200);
 				}
 				catch (InterruptedException e)
 				{
@@ -263,7 +263,9 @@ public class StrategoGame extends Observable
 			// an unsuccessful move is just removal of the piece
 			if (!success)
 			{
+				System.out.println("unsucessful move");
 				board[r][c].setOccupied(null);
+				setChangedAndNotifyObservers();
 				return;
 			}
 
@@ -344,13 +346,24 @@ public class StrategoGame extends Observable
 		switch (team)
 		{
 		case RED:
-			for (int r = 9; r < 12; r++)
-			{
-				for (int c = 3; c < 9; c++)
-				{
-					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.RED));
-				}
-			}
+			board[9][3].setOccupied(new Piece(Rank.EIGHT, Team.RED));
+			board[10][3].setOccupied(new Piece(Rank.TWO, Team.RED));
+			board[11][3].setOccupied(new Piece(Rank.TWO, Team.RED));
+			board[9][4].setOccupied(new Piece(Rank.THREE, Team.RED));
+			board[10][4].setOccupied(new Piece(Rank.BOMB, Team.RED));
+			board[11][4].setOccupied(new Piece(Rank.FOUR, Team.RED));
+			board[9][5].setOccupied(new Piece(Rank.SEVEN, Team.RED));
+			board[10][5].setOccupied(new Piece(Rank.SIX, Team.RED));
+			board[11][5].setOccupied(new Piece(Rank.FIVE, Team.RED));
+			board[9][6].setOccupied(new Piece(Rank.SIX, Team.RED));
+			board[10][6].setOccupied(new Piece(Rank.BOMB, Team.RED));
+			board[11][6].setOccupied(new Piece(Rank.BOMB, Team.RED));
+			board[9][7].setOccupied(new Piece(Rank.FOUR, Team.RED));
+			board[10][7].setOccupied(new Piece(Rank.THREE, Team.RED));
+			board[11][7].setOccupied(new Piece(Rank.TWO, Team.RED));
+			board[9][8].setOccupied(new Piece(Rank.FIVE, Team.RED));
+			board[10][8].setOccupied(new Piece(Rank.FOUR, Team.RED));
+			board[11][8].setOccupied(new Piece(Rank.FLAG, Team.RED));
 			break;
 		case GREEN:
 			// Initialize GREEN pieces
@@ -358,7 +371,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 0; c < 3; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.GREEN));
+					board[r][c].setOccupied(new Piece(Rank.FIVE, Team.GREEN));
 				}
 			}
 			break;
@@ -369,7 +382,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 3; c < 9; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.BLUE));
+					board[r][c].setOccupied(new Piece(Rank.SEVEN, Team.BLUE));
 				}
 			}
 			break;
@@ -380,7 +393,7 @@ public class StrategoGame extends Observable
 			{
 				for (int c = 9; c < 12; c++)
 				{
-					board[r][c].setOccupied(new Piece(Rank.FLAG, Team.YELLOW));
+					board[r][c].setOccupied(new Piece(Rank.SIX, Team.YELLOW));
 				}
 			}
 			break;

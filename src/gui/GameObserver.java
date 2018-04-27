@@ -257,7 +257,6 @@ public class GameObserver extends BorderPane implements Observer
 			// handle setup actions
 			if (game.getSetup())
 			{
-
 				// ignore clicks if a button wasn't specified to be clicked
 				if (placingPiece == null)
 				{
@@ -320,6 +319,22 @@ public class GameObserver extends BorderPane implements Observer
 			}
 
 			Square clickedSquare = game.getBoard()[mouseRow][mouseCol];
+			
+			// don't allow moves to non-movable squares
+			if (!clickedSquare.isMoveable()) {
+				return;
+			}
+
+			// if clicked a piece on the same team, make that the selected piece
+			if (clickedSquare.isOccupied())
+			{
+				if (clickedSquare.getOccupied().getTeam() == game.getTeam())
+				{
+					selectedPiece = clickedSquare.getOccupied();
+					drawBoard();
+					return;
+				}
+			}
 
 			/* move piece */
 			if (selectedPiece != null)
@@ -393,17 +408,9 @@ public class GameObserver extends BorderPane implements Observer
 				else
 				{
 					System.out.println("click not in available move locations");
-				}
-
-				if (clickedSquare.isOccupied())
-				{
-					// if clicked a piece on the same team, make that the selected piece
-					if (clickedSquare.getOccupied().getTeam() == game.getTeam())
-					{
-						selectedPiece = clickedSquare.getOccupied();
-						drawBoard();
-						return;
-					}
+					selectedPiece = null;
+					drawBoard();
+					return;
 				}
 				
 				game.sendPacket(mp);

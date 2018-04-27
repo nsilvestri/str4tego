@@ -56,6 +56,7 @@ public class Server extends Application
 	private static boolean yellowReady = false;
 
 	private static Team turn;
+	private Label turnLabel;
 	private static ArrayList<Team> eliminated = new ArrayList<>();
 
 	public static void main(String[] args) throws UnknownHostException, IOException
@@ -97,6 +98,8 @@ public class Server extends Application
 			connectionStatuses[i] = new Label("Client " + (i + 1) + " not connected.");
 			statusLabels.getChildren().add(connectionStatuses[i]);
 		}
+		turnLabel = new Label(turn + "'s turn.");
+		statusLabels.getChildren().add(turnLabel);
 		window.setTop(statusLabels);
 
 		packetBuffer = new ArrayList<Packet>();
@@ -376,7 +379,9 @@ public class Server extends Application
 
 			switch (dir)
 			{
+			
 			case UP:
+				// empty squares are always sucessful
 				if (!serverBoard[r - 1][c].isOccupied())
 				{
 					serverBoard[r - 1][c].setOccupied(movedPiece);
@@ -384,27 +389,38 @@ public class Server extends Application
 					mp.setSuccessful(true);
 					sendPacketToAll(mp);
 				}
+				// square is occupied by a piece
 				else
 				{
-					// if the captured piece was the flag, tell the clients a player got eliminated
-					if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
-					{
-						eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
-						Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
-						sendPacketToAll(ep);
-					}
+					// if the moving piece outranks the defending piece
 					if (movedPiece.getRank().getValue() >= serverBoard[r - 1][c].getOccupied().getRank().getValue())
 					{
+						// if the captured piece was the flag, tell the clients a player got eliminated
+						if (serverBoard[r - 1][c].getOccupied().getRank() == Rank.FLAG)
+						{
+							eliminated.add(serverBoard[r - 1][c].getOccupied().getTeam());
+							Packet ep = new EliminationPacket(serverBoard[r - 1][c].getOccupied().getTeam());
+							sendPacketToAll(ep);
+						}
+						
 						serverBoard[r - 1][c].setOccupied(movedPiece);
+						serverBoard[r][c].setOccupied(null);
 						mp.setSource(Team.SERVER);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
 					}
-					serverBoard[r][c].setOccupied(null);
+					// unsuccessful move
+					else
+					{
+						mp.setSource(Team.SERVER);
+						mp.setSuccessful(false);
+						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
+					}
 				}
 				break;
+				
 			case DOWN:
-				System.out.println("square: " + serverBoard[r][c]);
 				if (!serverBoard[r + 1][c].isOccupied())
 				{
 					serverBoard[r][c].setOccupied(null);
@@ -414,23 +430,33 @@ public class Server extends Application
 				}
 				else
 				{
-					// if the captured piece was the flag, tell the clients a player got eliminated
-					if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
-					{
-						eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
-						Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
-						sendPacketToAll(ep);
-					}
 					if (movedPiece.getRank().getValue() >= serverBoard[r + 1][c].getOccupied().getRank().getValue())
 					{
+						// if the captured piece was the flag, tell the clients a player got eliminated
+						if (serverBoard[r + 1][c].getOccupied().getRank() == Rank.FLAG)
+						{
+							eliminated.add(serverBoard[r + 1][c].getOccupied().getTeam());
+							Packet ep = new EliminationPacket(serverBoard[r + 1][c].getOccupied().getTeam());
+							sendPacketToAll(ep);
+						}
+						
 						serverBoard[r + 1][c].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
 
 					}
-					serverBoard[r][c].setOccupied(null);
+					// unsuccessful move
+					else
+					{
+						mp.setSource(Team.SERVER);
+						mp.setSuccessful(false);
+						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
+					}
 				}
 				break;
+				
 			case LEFT:
 				if (!serverBoard[r][c - 1].isOccupied())
 				{
@@ -444,19 +470,28 @@ public class Server extends Application
 					if (movedPiece.getRank().getValue() >= serverBoard[r][c - 1].getOccupied().getRank().getValue())
 					{
 						// if the captured piece was the flag, tell the clients a player got eliminated
-						if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
+						if (serverBoard[r][c - 1].getOccupied().getRank() == Rank.FLAG)
 						{
-							eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
-							Packet ep = new EliminationPacket(serverBoard[r][c + 1].getOccupied().getTeam());
+							eliminated.add(serverBoard[r][c - 1].getOccupied().getTeam());
+							Packet ep = new EliminationPacket(serverBoard[r][c - 1].getOccupied().getTeam());
 							sendPacketToAll(ep);
 						}
 						serverBoard[r][c - 1].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
 					}
-					serverBoard[r][c].setOccupied(null);
+					// unsuccessful move
+					else
+					{
+						mp.setSource(Team.SERVER);
+						mp.setSuccessful(false);
+						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
+					}
 				}
 				break;
+				
 			case RIGHT:
 				if (!serverBoard[r][c + 1].isOccupied())
 				{
@@ -469,7 +504,6 @@ public class Server extends Application
 				{
 					if (movedPiece.getRank().getValue() >= serverBoard[r][c + 1].getOccupied().getRank().getValue())
 					{
-						// if the captured piece was the flag, tell the clients a player got eliminated
 						if (serverBoard[r][c + 1].getOccupied().getRank() == Rank.FLAG)
 						{
 							eliminated.add(serverBoard[r][c + 1].getOccupied().getTeam());
@@ -479,10 +513,19 @@ public class Server extends Application
 						serverBoard[r][c + 1].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
 					}
-					serverBoard[r][c].setOccupied(null);
+					// unsuccessful move
+					else
+					{
+						mp.setSource(Team.SERVER);
+						mp.setSuccessful(false);
+						sendPacketToAll(mp);
+						serverBoard[r][c].setOccupied(null);
+					}
 				}
 				break;
+				
 			default:
 				System.out.println("something wrong happened in the move parsing");
 			}
@@ -493,6 +536,7 @@ public class Server extends Application
 				turn = Team.whoseTurnNext(turn);	
 			}
 			while (eliminated.contains(turn));
+			turnLabel.setText(turn + "'s turn.");
 		}
 		
 		drawBoard();
