@@ -1,17 +1,36 @@
 package model;
 
-public class MovePacket extends Packet {
+public class MovePacket extends Packet
+{
 
 	private static final long serialVersionUID = 1L;
 
-	private Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> move;
+	private Pair<Integer, Integer> coords;
+	private Direction direction;
+	private boolean wonSuccessful;
 
-	public MovePacket(PacketType type, Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> move, Team source) {
-		super(type, source);
-		this.move = move;
+	public MovePacket(Pair<Integer, Integer> coords, Direction direction, Team source)
+	{
+		super(PacketType.MOVE, source);
+		this.coords = coords;
+		this.direction = direction;
 	}
 
-	public Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> getMove() {
-		return move;
+	public Pair<Integer, Integer> getCoords()
+	{
+		return coords;
+	}
+
+	public Direction getDirection()
+	{
+		return direction;
+	}
+	
+	public void setSuccessful(boolean b) {
+		wonSuccessful = b;
+	}
+	
+	public boolean isSuccessful() {
+		return wonSuccessful;
 	}
 }

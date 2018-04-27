@@ -10,7 +10,8 @@ import java.util.Observable;
 
 import javafx.animation.AnimationTimer;
 
-public class StrategoGame extends Observable {
+public class StrategoGame extends Observable
+{
 
 	private Square[][] board;
 	private Team team;
@@ -21,12 +22,13 @@ public class StrategoGame extends Observable {
 	private static ObjectOutputStream outToServer;
 	private static ObjectInputStream inFromServer;
 	private static ArrayList<Packet> packetBuffer = new ArrayList<Packet>();
-	
+
 	private boolean setup = true;
 
 	private Team turn;
 
-	public StrategoGame() {
+	public StrategoGame()
+	{
 		initializeBoard();
 		team = Team.NONE;
 		initializeServerConnection();
@@ -36,12 +38,15 @@ public class StrategoGame extends Observable {
 	/**
 	 * Initializes the board instance and declares which squares are unmovable.
 	 */
-	private void initializeBoard() {
+	private void initializeBoard()
+	{
 
 		board = new Square[12][12];
 
-		for (int r = 0; r < 12; r++) {
-			for (int c = 0; c < 12; c++) {
+		for (int r = 0; r < 12; r++)
+		{
+			for (int c = 0; c < 12; c++)
+			{
 				board[r][c] = new Square();
 			}
 		}
@@ -49,78 +54,105 @@ public class StrategoGame extends Observable {
 		/* Make certain Squares of the board unmovable */
 
 		// top left 3x3 grid
-		for (int r = 0; r < 3; r++) {
-			for (int c = 0; c < 3; c++) {
+		for (int r = 0; r < 3; r++)
+		{
+			for (int c = 0; c < 3; c++)
+			{
 				board[r][c].setMovable(false);
 			}
 		}
 
 		// top right 3x3 grid
-		for (int r = 0; r < 3; r++) {
-			for (int c = 9; c < 12; c++) {
+		for (int r = 0; r < 3; r++)
+		{
+			for (int c = 9; c < 12; c++)
+			{
 				board[r][c].setMovable(false);
 			}
 		}
 
 		// bottom left 3x3 grid
-		for (int r = 9; r < 12; r++) {
-			for (int c = 0; c < 3; c++) {
+		for (int r = 9; r < 12; r++)
+		{
+			for (int c = 0; c < 3; c++)
+			{
 				board[r][c].setMovable(false);
 			}
 		}
 
 		// bottom right 3x3 grid
-		for (int r = 9; r < 12; r++) {
-			for (int c = 9; c < 12; c++) {
+		for (int r = 9; r < 12; r++)
+		{
+			for (int c = 9; c < 12; c++)
+			{
 				board[r][c].setMovable(false);
 			}
 		}
 
 		// center 2x2 grid
-		for (int r = 5; r < 7; r++) {
-			for (int c = 5; c < 7; c++) {
+		for (int r = 5; r < 7; r++)
+		{
+			for (int c = 5; c < 7; c++)
+			{
 				board[r][c].setMovable(false);
 			}
 		}
 	}
 
-	private void initializeServerConnection() {
+	private void initializeServerConnection()
+	{
 		// start a thread that continuously attempts to connect to the server
-		Thread serverConnector = new Thread(() -> {
+		Thread serverConnector = new Thread(() ->
+		{
 
-			while (clientSocket == null || !clientSocket.isConnected()) {
-				try {
+			while (clientSocket == null || !clientSocket.isConnected())
+			{
+				try
+				{
 					clientSocket = new Socket();
 					clientSocket.connect(new InetSocketAddress(serverAddress, serverPort));
-				} catch (IOException ioe) {
+				}
+				catch (IOException ioe)
+				{
 					// TODO: Empty Catch
 				}
 
 				// hopefully stops the server from thinking it's getting DOS'd
-				try {
+				try
+				{
 					Thread.sleep(1500);
-				} catch (InterruptedException e) {
+				}
+				catch (InterruptedException e)
+				{
 					e.printStackTrace();
 				}
 			}
 
 			// initialize streams
-			try {
+			try
+			{
 				outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
 				inFromServer = new ObjectInputStream(clientSocket.getInputStream());
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 
 			// start a thread that reads packets from the socket and puts them
 			// in the buffer
-			Thread packetReader = new Thread(() -> {
-				try {
-					while (true) {
+			Thread packetReader = new Thread(() ->
+			{
+				try
+				{
+					while (true)
+					{
 						Packet p = (Packet) inFromServer.readObject();
 						packetBuffer.add(p);
 					}
-				} catch (ClassNotFoundException | IOException e) {
+				}
+				catch (ClassNotFoundException | IOException e)
+				{
 					e.printStackTrace();
 				}
 			});
@@ -131,10 +163,13 @@ public class StrategoGame extends Observable {
 		serverConnector.start();
 
 		// start a timer that will parse packets 60 times per second
-		AnimationTimer at = new AnimationTimer() {
+		AnimationTimer at = new AnimationTimer()
+		{
 			@Override
-			public void handle(long now) {
-				while (!packetBuffer.isEmpty()) {
+			public void handle(long now)
+			{
+				while (!packetBuffer.isEmpty())
+				{
 					parsePacket(packetBuffer.remove(0));
 				}
 			}
@@ -142,138 +177,270 @@ public class StrategoGame extends Observable {
 		at.start();
 	}
 
-	public Square[][] getBoard() {
+	public Square[][] getBoard()
+	{
 		return board;
 	}
 
-	public void setPiece(Piece p, int r, int c) {
+	public void setPiece(Piece p, int r, int c)
+	{
 		board[r][c].setOccupied(p);
 		setChangedAndNotifyObservers();
 	}
 
-	public void setChangedAndNotifyObservers() {
+	public void setChangedAndNotifyObservers()
+	{
 		setChanged();
 		notifyObservers();
 	}
 
-	public boolean isConnectedToServer() {
+	public boolean isConnectedToServer()
+	{
 		return clientSocket != null && clientSocket.isConnected();
 	}
 
-	private void parsePacket(Packet p) {
+	private void parsePacket(Packet p)
+	{
 		System.out.println("Received packet of type: " + p.getPacketType());
-		if (p.getPacketType() == PacketType.INITIALIZE_GAME) {
+		if (p.getPacketType() == PacketType.INITIALIZE_GAME)
+		{
 			InitializePacket ip = (InitializePacket) p;
 			team = ip.getSource();
 
 			// Initialize red pieces
-			for (int r = 9; r < 12; r++) {
-				for (int c = 3; c < 9; c++) {
+			for (int r = 9; r < 12; r++)
+			{
+				for (int c = 3; c < 9; c++)
+				{
 					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.RED));
 				}
 			}
 
 			// Initialize GREEN pieces
-			for (int r = 3; r < 9; r++) {
-				for (int c = 0; c < 3; c++) {
+			for (int r = 3; r < 9; r++)
+			{
+				for (int c = 0; c < 3; c++)
+				{
 					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.GREEN));
 				}
 			}
 
 			// Initialize blue pieces
-			for (int r = 0; r < 3; r++) {
-				for (int c = 3; c < 9; c++) {
+			for (int r = 0; r < 3; r++)
+			{
+				for (int c = 3; c < 9; c++)
+				{
 					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.BLUE));
 				}
 			}
 
 			// Initialize yellow pieces
-			for (int r = 3; r < 9; r++) {
-				for (int c = 9; c < 12; c++) {
+			for (int r = 3; r < 9; r++)
+			{
+				for (int c = 9; c < 12; c++)
+				{
 					board[r][c].setOccupied(new Piece(Rank.UNKNOWN, Team.YELLOW));
 				}
 			}
 
 			fillDummyDataAndSendReadyPacket();
 
-		} else if (p.getPacketType() == PacketType.ALL_CLIENTS_READY) {
+		}
+		else if (p.getPacketType() == PacketType.ALL_CLIENTS_READY)
+		{
 			turn = Team.RED;
+		}
+		else if (p.getPacketType() == PacketType.MOVE)
+		{
+			MovePacket mp = (MovePacket) p;
+
+			int r = mp.getCoords().getLeft();
+			int c = mp.getCoords().getRight();
+			Direction dir = mp.getDirection();
+			boolean success = mp.isSuccessful();
+
+			// an unsuccessful move is just removal of the piece
+			if (!success)
+			{
+				board[r][c].setOccupied(null);
+				return;
+			}
+			
+			// sucessful move
+			Piece movedPiece = board[r][c].getOccupied();
+			
+			switch (dir)
+			{
+			case UP:
+				if (!board[r - 1][c].isOccupied())
+				{
+					board[r][c].setOccupied(null);
+					board[r - 1][c].setOccupied(movedPiece);
+				}
+				else
+				{
+					if (movedPiece.getRank().getValue() >= board[r - 1][c].getOccupied().getRank().getValue())
+					{
+						board[r - 1][c].setOccupied(movedPiece);
+					}
+					else
+					{
+						board[r][c].setOccupied(null);
+					}
+				}
+				break;
+			case DOWN:
+				if (!board[r + 1][c].isOccupied())
+				{
+					board[r][c].setOccupied(null);
+					board[r + 1][c].setOccupied(movedPiece);
+				}
+				else
+				{
+					if (movedPiece.getRank().getValue() >= board[r + 1][c].getOccupied().getRank().getValue())
+					{
+						board[r + 1][c].setOccupied(movedPiece);
+					}
+					else
+					{
+						board[r][c].setOccupied(null);
+					}
+				}
+				break;
+			case LEFT:
+				if (!board[r][c - 1].isOccupied())
+				{
+					board[r][c].setOccupied(null);
+					board[r][c - 1].setOccupied(movedPiece);
+				}
+				else
+				{
+					if (movedPiece.getRank().getValue() >= board[r][c - 1].getOccupied().getRank().getValue())
+					{
+						board[r][c - 1].setOccupied(movedPiece);
+					}
+					else
+					{
+						board[r][c].setOccupied(null);
+					}
+				}
+				break;
+			case RIGHT:
+				if (!board[r][c + 1].isOccupied())
+				{
+					board[r][c].setOccupied(null);
+					board[r][c + 1].setOccupied(movedPiece);
+				}
+				else
+				{
+					if (movedPiece.getRank().getValue() >= board[r][c + 1].getOccupied().getRank().getValue())
+					{
+						board[r][c + 1].setOccupied(movedPiece);
+					}
+					else
+					{
+						board[r][c].setOccupied(null);
+					}
+				}
+				break;
+			default:
+				System.out.println("something wrong happened in the move parsing");
+			}
+			turn = Team.whoseTurnNext(team);
 		}
 
 		setChangedAndNotifyObservers();
 	}
 
-	public Team whoseTurn() {
+	public Team whoseTurn()
+	{
 		return turn;
 	}
 
-	public Team getTeam() {
+	public Team getTeam()
+	{
 		return team;
 	}
 
 	/**
 	 * Writes the given Packet to the connected Server.
 	 * 
-	 * @param p
-	 *            - the Packet to write to the connected Server.
+	 * @param p - the Packet to write to the connected Server.
 	 */
-	public void sendPacket(Packet p) {
-		try {
+	public void sendPacket(Packet p)
+	{
+		try
+		{
+			System.out.println("Sending packet: " + p.getPacketType());
 			outToServer.writeObject(p);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	private void fillDummyDataAndSendReadyPacket() {
-		switch (team) {
-			case RED :
-				for (int r = 9; r < 12; r++) {
-					for (int c = 3; c < 9; c++) {
-						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.RED));
-					}
+	private void fillDummyDataAndSendReadyPacket()
+	{
+		switch (team)
+		{
+		case RED:
+			for (int r = 9; r < 12; r++)
+			{
+				for (int c = 3; c < 9; c++)
+				{
+					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.RED));
 				}
-				break;
-			case GREEN :
-				// Initialize GREEN pieces
-				for (int r = 3; r < 9; r++) {
-					for (int c = 0; c < 3; c++) {
-						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
-					}
+			}
+			break;
+		case GREEN:
+			// Initialize GREEN pieces
+			for (int r = 3; r < 9; r++)
+			{
+				for (int c = 0; c < 3; c++)
+				{
+					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
 				}
-				break;
+			}
+			break;
 
-			case BLUE :
-				// Initialize blue pieces
-				for (int r = 0; r < 3; r++) {
-					for (int c = 3; c < 9; c++) {
-						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
-					}
+		case BLUE:
+			// Initialize blue pieces
+			for (int r = 0; r < 3; r++)
+			{
+				for (int c = 3; c < 9; c++)
+				{
+					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
 				}
-				break;
+			}
+			break;
 
-			case YELLOW :
-				// Initialize yellow pieces
-				for (int r = 3; r < 9; r++) {
-					for (int c = 9; c < 12; c++) {
-						board[r][c].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
-					}
+		case YELLOW:
+			// Initialize yellow pieces
+			for (int r = 3; r < 9; r++)
+			{
+				for (int c = 9; c < 12; c++)
+				{
+					board[r][c].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
 				}
-				break;
-			default :
-				System.err.println("Wrong team type received: " + team);
-				break;
+			}
+			break;
+		default:
+			System.err.println("Wrong team type received: " + team);
+			break;
 		}
 
 		setup = false;
 		sendPacket(new ClientReadyPacket(team, board));
 	}
 
-	public boolean getSetup() {
+	public boolean getSetup()
+	{
 		return setup;
 	}
-	
-	public void setSetup(boolean b) {
+
+	public void setSetup(boolean b)
+	{
 		setup = b;
 	}
 }

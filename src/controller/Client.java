@@ -12,9 +12,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import model.StrategoGame;
 
-public class Client extends Application {
+public class Client extends Application
+{
 
-	public static void main(String[] args) throws UnknownHostException, IOException {
+	public static void main(String[] args) throws UnknownHostException, IOException
+	{
 		launch(args);
 	}
 
@@ -22,9 +24,10 @@ public class Client extends Application {
 	private Observer gameObserver;
 
 	private BorderPane window;
- 
+
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) throws Exception
+	{
 
 		window = new BorderPane();
 
