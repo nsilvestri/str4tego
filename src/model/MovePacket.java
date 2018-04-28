@@ -25,12 +25,14 @@ public class MovePacket extends Packet
 	{
 		return direction;
 	}
-	
-	public void setSuccessful(boolean b) {
+
+	public void setSuccessful(boolean b)
+	{
 		wonSuccessful = b;
 	}
-	
-	public boolean isSuccessful() {
+
+	public boolean isSuccessful()
+	{
 		return wonSuccessful;
 	}
 }

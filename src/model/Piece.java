@@ -30,9 +30,10 @@ public class Piece implements Serializable
 	{
 		return team;
 	}
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "Piece[" + rank + ", " + team + "]";
 	}
 }

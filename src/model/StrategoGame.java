@@ -284,17 +284,17 @@ public class StrategoGame extends Observable
 			case DOWN:
 				board[r][c].setOccupied(null);
 				board[r + 1][c].setOccupied(movedPiece);
-				
+
 				break;
 			case LEFT:
 				board[r][c].setOccupied(null);
 				board[r][c - 1].setOccupied(movedPiece);
-				
+
 				break;
 			case RIGHT:
 				board[r][c].setOccupied(null);
 				board[r][c + 1].setOccupied(movedPiece);
-				
+
 				break;
 			default:
 				System.out.println("something wrong happened in the move parsing");
@@ -303,11 +303,12 @@ public class StrategoGame extends Observable
 			// change turns, but skip them if they are eliminated
 			do
 			{
-				turn = Team.whoseTurnNext(turn);	
+				turn = Team.whoseTurnNext(turn);
 			}
 			while (eliminated.contains(turn));
 		}
-		else if (p.getPacketType() == PacketType.ELIMINATION) {
+		else if (p.getPacketType() == PacketType.ELIMINATION)
+		{
 			EliminationPacket ep = (EliminationPacket) p;
 			eliminated.add(ep.getEliminated());
 		}
@@ -368,36 +369,69 @@ public class StrategoGame extends Observable
 			board[11][8].setOccupied(new Piece(Rank.FLAG, Team.RED));
 			break;
 		case GREEN:
-			// Initialize GREEN pieces
-			for (int r = 3; r < 9; r++)
-			{
-				for (int c = 0; c < 3; c++)
-				{
-					board[r][c].setOccupied(new Piece(Rank.FIVE, Team.GREEN));
-				}
-			}
+			board[3][0].setOccupied(new Piece(Rank.EIGHT, Team.GREEN));
+			board[3][1].setOccupied(new Piece(Rank.TWO, Team.GREEN));
+			board[3][2].setOccupied(new Piece(Rank.TWO, Team.GREEN));
+			board[4][0].setOccupied(new Piece(Rank.THREE, Team.GREEN));
+			board[4][1].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
+			board[4][2].setOccupied(new Piece(Rank.FOUR, Team.GREEN));
+			board[5][0].setOccupied(new Piece(Rank.SEVEN, Team.GREEN));
+			board[5][1].setOccupied(new Piece(Rank.SIX, Team.GREEN));
+			board[5][2].setOccupied(new Piece(Rank.FIVE, Team.GREEN));
+			board[6][0].setOccupied(new Piece(Rank.SIX, Team.GREEN));
+			board[6][1].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
+			board[6][2].setOccupied(new Piece(Rank.BOMB, Team.GREEN));
+			board[7][0].setOccupied(new Piece(Rank.FOUR, Team.GREEN));
+			board[7][1].setOccupied(new Piece(Rank.THREE, Team.GREEN));
+			board[7][2].setOccupied(new Piece(Rank.TWO, Team.GREEN));
+			board[8][0].setOccupied(new Piece(Rank.FIVE, Team.GREEN));
+			board[8][1].setOccupied(new Piece(Rank.FOUR, Team.GREEN));
+			board[8][2].setOccupied(new Piece(Rank.FLAG, Team.GREEN));
 			break;
 
 		case BLUE:
-			// Initialize blue pieces
-			for (int r = 0; r < 3; r++)
-			{
-				for (int c = 3; c < 9; c++)
-				{
-					board[r][c].setOccupied(new Piece(Rank.SEVEN, Team.BLUE));
-				}
-			}
+
+			board[0][3].setOccupied(new Piece(Rank.EIGHT, Team.BLUE));
+			board[1][3].setOccupied(new Piece(Rank.TWO, Team.BLUE));
+			board[2][3].setOccupied(new Piece(Rank.TWO, Team.BLUE));
+			board[0][4].setOccupied(new Piece(Rank.THREE, Team.BLUE));
+			board[1][4].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
+			board[2][4].setOccupied(new Piece(Rank.FOUR, Team.BLUE));
+			board[0][5].setOccupied(new Piece(Rank.SEVEN, Team.BLUE));
+			board[1][5].setOccupied(new Piece(Rank.SIX, Team.BLUE));
+			board[2][5].setOccupied(new Piece(Rank.FIVE, Team.BLUE));
+			board[0][6].setOccupied(new Piece(Rank.SIX, Team.BLUE));
+			board[1][6].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
+			board[2][6].setOccupied(new Piece(Rank.BOMB, Team.BLUE));
+			board[0][7].setOccupied(new Piece(Rank.FOUR, Team.BLUE));
+			board[1][7].setOccupied(new Piece(Rank.THREE, Team.BLUE));
+			board[2][7].setOccupied(new Piece(Rank.TWO, Team.BLUE));
+			board[0][8].setOccupied(new Piece(Rank.FIVE, Team.BLUE));
+			board[1][8].setOccupied(new Piece(Rank.FOUR, Team.BLUE));
+			board[2][8].setOccupied(new Piece(Rank.FLAG, Team.BLUE));
+
 			break;
 
 		case YELLOW:
-			// Initialize yellow pieces
-			for (int r = 3; r < 9; r++)
-			{
-				for (int c = 9; c < 12; c++)
-				{
-					board[r][c].setOccupied(new Piece(Rank.SIX, Team.YELLOW));
-				}
-			}
+
+			board[3][9].setOccupied(new Piece(Rank.EIGHT, Team.YELLOW));
+			board[3][10].setOccupied(new Piece(Rank.TWO, Team.YELLOW));
+			board[3][11].setOccupied(new Piece(Rank.TWO, Team.YELLOW));
+			board[4][9].setOccupied(new Piece(Rank.THREE, Team.YELLOW));
+			board[4][10].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
+			board[4][11].setOccupied(new Piece(Rank.FOUR, Team.YELLOW));
+			board[5][9].setOccupied(new Piece(Rank.SEVEN, Team.YELLOW));
+			board[5][10].setOccupied(new Piece(Rank.SIX, Team.YELLOW));
+			board[5][11].setOccupied(new Piece(Rank.FIVE, Team.YELLOW));
+			board[6][9].setOccupied(new Piece(Rank.SIX, Team.YELLOW));
+			board[6][10].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
+			board[6][11].setOccupied(new Piece(Rank.BOMB, Team.YELLOW));
+			board[7][9].setOccupied(new Piece(Rank.FOUR, Team.YELLOW));
+			board[7][10].setOccupied(new Piece(Rank.THREE, Team.YELLOW));
+			board[7][11].setOccupied(new Piece(Rank.TWO, Team.YELLOW));
+			board[8][9].setOccupied(new Piece(Rank.FIVE, Team.YELLOW));
+			board[8][10].setOccupied(new Piece(Rank.FOUR, Team.YELLOW));
+			board[8][11].setOccupied(new Piece(Rank.FLAG, Team.YELLOW));
 			break;
 		default:
 			System.err.println("Wrong team type received: " + team);

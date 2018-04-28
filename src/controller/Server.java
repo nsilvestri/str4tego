@@ -384,7 +384,7 @@ public class Server extends Application
 
 			switch (dir)
 			{
-			
+
 			case UP:
 				// empty squares are always sucessful
 				if (!serverBoard[r - 1][c].isOccupied())
@@ -407,7 +407,7 @@ public class Server extends Application
 							Packet ep = new EliminationPacket(serverBoard[r - 1][c].getOccupied().getTeam());
 							sendPacketToAll(ep);
 						}
-						
+
 						serverBoard[r - 1][c].setOccupied(movedPiece);
 						serverBoard[r][c].setOccupied(null);
 						mp.setSource(Team.SERVER);
@@ -424,7 +424,7 @@ public class Server extends Application
 					}
 				}
 				break;
-				
+
 			case DOWN:
 				if (!serverBoard[r + 1][c].isOccupied())
 				{
@@ -444,7 +444,7 @@ public class Server extends Application
 							Packet ep = new EliminationPacket(serverBoard[r + 1][c].getOccupied().getTeam());
 							sendPacketToAll(ep);
 						}
-						
+
 						serverBoard[r + 1][c].setOccupied(movedPiece);
 						mp.setSuccessful(true);
 						sendPacketToAll(mp);
@@ -461,7 +461,7 @@ public class Server extends Application
 					}
 				}
 				break;
-				
+
 			case LEFT:
 				if (!serverBoard[r][c - 1].isOccupied())
 				{
@@ -496,7 +496,7 @@ public class Server extends Application
 					}
 				}
 				break;
-				
+
 			case RIGHT:
 				if (!serverBoard[r][c + 1].isOccupied())
 				{
@@ -530,20 +530,20 @@ public class Server extends Application
 					}
 				}
 				break;
-				
+
 			default:
 				System.out.println("something wrong happened in the move parsing");
 			}
-			
+
 			// change turns, but skip them if they are eliminated
 			do
 			{
-				turn = Team.whoseTurnNext(turn);	
+				turn = Team.whoseTurnNext(turn);
 			}
 			while (eliminated.contains(turn));
 			turnLabel.setText(turn + "'s turn.");
 		}
-		
+
 		drawBoard();
 	}
 
@@ -553,7 +553,7 @@ public class Server extends Application
 		// reset to a white canvas
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		
+
 		int sqSize = 40;
 
 		for (int r = 0; r < serverBoard.length; r++)
@@ -656,8 +656,10 @@ public class Server extends Application
 	 * 
 	 * @param p - the packet to be sent.
 	 */
-	private void sendPacketToAll(Packet p) {
-		for (int i = 0; i < 4; i++) {
+	private void sendPacketToAll(Packet p)
+	{
+		for (int i = 0; i < 4; i++)
+		{
 			try
 			{
 				clientOutputStreams[i].writeObject(p);
@@ -671,7 +673,8 @@ public class Server extends Application
 	}
 
 	/**
-	 * Sends the given packet to all connected Clients except the client whose turn it is.
+	 * Sends the given packet to all connected Clients except the client whose turn
+	 * it is.
 	 * 
 	 * @param p - the packet to be sent.
 	 */

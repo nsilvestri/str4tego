@@ -319,9 +319,10 @@ public class GameObserver extends BorderPane implements Observer
 			}
 
 			Square clickedSquare = game.getBoard()[mouseRow][mouseCol];
-			
+
 			// don't allow moves to non-movable squares
-			if (!clickedSquare.isMoveable()) {
+			if (!clickedSquare.isMoveable())
+			{
 				return;
 			}
 
@@ -342,18 +343,18 @@ public class GameObserver extends BorderPane implements Observer
 				Packet mp = null;
 				// get the direction of the click from the selected piece
 				Direction dir = null;
-				
+
 				Square sqAbove = null;
 				// try/catches prevent array index out of bounds
 				try
 				{
-					 sqAbove = game.getBoard()[mouseRow - 1][mouseCol];
+					sqAbove = game.getBoard()[mouseRow - 1][mouseCol];
 				}
 				catch (ArrayIndexOutOfBoundsException e)
 				{
 					sqAbove = new Square();
 				}
-				
+
 				Square sqBelow;
 				try
 				{
@@ -367,7 +368,7 @@ public class GameObserver extends BorderPane implements Observer
 				Square sqLeft = null;
 				try
 				{
-					 sqLeft = game.getBoard()[mouseRow][mouseCol - 1];
+					sqLeft = game.getBoard()[mouseRow][mouseCol - 1];
 				}
 				catch (ArrayIndexOutOfBoundsException e)
 				{
@@ -383,8 +384,7 @@ public class GameObserver extends BorderPane implements Observer
 				{
 					sqRight = new Square();
 				}
-				
-				
+
 				if (sqAbove.getOccupied() == selectedPiece)
 				{
 					dir = Direction.DOWN;
@@ -412,10 +412,10 @@ public class GameObserver extends BorderPane implements Observer
 					drawBoard();
 					return;
 				}
-				
+
 				game.sendPacket(mp);
 				selectedPiece = null;
-				
+
 				return;
 			}
 
