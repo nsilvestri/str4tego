@@ -157,10 +157,12 @@ public class StrategoGame extends Observable
 					e.printStackTrace();
 				}
 			});
+			packetReader.setDaemon(true);
 			packetReader.start();
 
 			setChangedAndNotifyObservers();
 		});
+		serverConnector.setDaemon(true);
 		serverConnector.start();
 
 		// start a timer that will parse packets 60 times per second
