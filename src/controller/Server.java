@@ -363,6 +363,7 @@ public class Server extends Application
 				}
 
 				turn = Team.RED;
+				turnLabel.setText("RED's turn.");
 			}
 		}
 
