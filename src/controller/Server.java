@@ -123,8 +123,9 @@ public class Server extends Application
 	private void connectClients() throws IOException
 	{
 		ClientConnector cc = new ClientConnector();
-		Thread thread = new Thread(cc);
-		thread.start();
+		Thread clientConnectorThread = new Thread(cc);
+		clientConnectorThread.setDaemon(true);
+		clientConnectorThread.start();
 	}
 
 	private class ClientConnector implements Runnable
@@ -192,6 +193,7 @@ public class Server extends Application
 				e.printStackTrace();
 			}
 		});
+		packetReader1.setDaemon(true);
 		packetReader1.start();
 
 		// client 2
@@ -210,6 +212,7 @@ public class Server extends Application
 				e.printStackTrace();
 			}
 		});
+		packetReader2.setDaemon(true);
 		packetReader2.start();
 
 		// client 3
@@ -228,6 +231,7 @@ public class Server extends Application
 				e.printStackTrace();
 			}
 		});
+		packetReader3.setDaemon(true);
 		packetReader3.start();
 
 		// client 4
@@ -246,6 +250,7 @@ public class Server extends Application
 				e.printStackTrace();
 			}
 		});
+		packetReader4.setDaemon(true);
 		packetReader4.start();
 	}
 
