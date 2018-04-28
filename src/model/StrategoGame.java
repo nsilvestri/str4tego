@@ -249,10 +249,12 @@ public class StrategoGame extends Observable
 			fillDummyDataAndSendReadyPacket();
 
 		}
+		// game ready packet just changes the current turn to RED
 		else if (p.getPacketType() == PacketType.ALL_CLIENTS_READY)
 		{
 			turn = Team.RED;
 		}
+		// parse move packets
 		else if (p.getPacketType() == PacketType.MOVE)
 		{
 			MovePacket mp = (MovePacket) p;
@@ -267,37 +269,38 @@ public class StrategoGame extends Observable
 			{
 				System.out.println("unsucessful move");
 				board[r][c].setOccupied(null);
-				setChangedAndNotifyObservers();
-				return;
 			}
-
 			// sucessful move
-			Piece movedPiece = board[r][c].getOccupied();
-
-			switch (dir)
+			else 
 			{
-			case UP:
-				board[r][c].setOccupied(null);
-				board[r - 1][c].setOccupied(movedPiece);
+				Piece movedPiece = board[r][c].getOccupied();
 
-				break;
-			case DOWN:
-				board[r][c].setOccupied(null);
-				board[r + 1][c].setOccupied(movedPiece);
+				switch (dir)
+				{
+				case UP:
+					board[r][c].setOccupied(null);
+					board[r - 1][c].setOccupied(movedPiece);
 
-				break;
-			case LEFT:
-				board[r][c].setOccupied(null);
-				board[r][c - 1].setOccupied(movedPiece);
+					break;
+				case DOWN:
+					board[r][c].setOccupied(null);
+					board[r + 1][c].setOccupied(movedPiece);
 
-				break;
-			case RIGHT:
-				board[r][c].setOccupied(null);
-				board[r][c + 1].setOccupied(movedPiece);
+					break;
+				case LEFT:
+					board[r][c].setOccupied(null);
+					board[r][c - 1].setOccupied(movedPiece);
 
-				break;
-			default:
-				System.out.println("something wrong happened in the move parsing");
+					break;
+				case RIGHT:
+					board[r][c].setOccupied(null);
+					board[r][c + 1].setOccupied(movedPiece);
+
+					break;
+				default:
+					System.out.println("something wrong happened in the move parsing");
+				}
+				
 			}
 
 			// change turns, but skip them if they are eliminated
