@@ -246,7 +246,8 @@ public class StrategoGame extends Observable
 				}
 			}
 
-			fillDummyDataAndSendReadyPacket();
+			/* uncomment this if you want the board to autofill pieces */
+			// fillDummyDataAndSendReadyPacket();
 
 		}
 		// game ready packet just changes the current turn to RED
